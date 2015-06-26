@@ -1,0 +1,43 @@
+header {
+	display: block;
+}
+h1, h2 {
+	text-align: center;
+}
+#options{
+	display: block;
+}
+div {
+	display: block;
+}
+.row{
+	margin-bottom: 5px;
+}
+.players{
+	display: inline;
+	position:relative;
+}
+#player2{
+	position: absolute;
+	/*left: 60px;*/
+}
+.selection{
+	margin-bottom: 10px;
+}
+.leftcol .middlecol .rightcol{
+	position: relative;
+}
+#i, #iv, #vii {
+	position: absolute;
+	left: 260px;
+}  
+#iii, #vi, #ix{
+	position: absolute;
+	left: -230px;
+}
+button {
+	height: 50px;
+	width: 100px;
+	background-color: lavender;
+	clear:left;
+}
