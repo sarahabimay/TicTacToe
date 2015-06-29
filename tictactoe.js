@@ -1,5 +1,13 @@
 $(document).ready(function(){
-	$("#player1").click(function(){
-		console.log( "In here");
-  });
+	$(".player").click(function(){
+		// e.preventDefault();
+		$('#readyModal').modal('show');
+  	});
+	$(".readytoplay").click( function() {
+		$('#readyModal').modal('hide');
+	} );
+
+	$(".notreadytoplay").click( function() {
+		$('#readyModal').modal('hide');
+	} );
 });
