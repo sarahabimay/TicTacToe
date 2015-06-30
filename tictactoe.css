@@ -21,6 +21,9 @@ div {
 	position: absolute;
 	/*left: 60px;*/
 }
+#stateofplay{
+	display: none;
+}
 .selection{
 	margin-bottom: 10px;
 }
