@@ -3,6 +3,30 @@ var domStuff = {
 		romans : [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"]
 
 };
+
+Array.prototype.myFind = function(predicate) {
+  if (this === null) {
+    throw new TypeError('Array.prototype.find called on null or undefined');
+  }
+  if (typeof predicate !== 'function') {
+    throw new TypeError('predicate must be a function');
+  }
+  var list = Object(this);
+  var length = list.length >>> 0;
+  var thisArg = arguments[1];
+  var value;
+  var result;
+
+  for (var i = 0; i < length; i++) {
+    value = list[i];
+    result = predicate.call(thisArg, value, i, list);
+    if ( result !== undefined ) {
+      return result;
+    }
+  }
+  return undefined;
+};
+
 var BoardGame = (function(){
 
 
@@ -16,25 +40,91 @@ var BoardGame = (function(){
     /// private members
 		var isPlayer1 = player1;
 		var playCount = 0;
-		var board = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
-		var that = this;
-
+		// var board = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+		var board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
+		// the array below represents all of the potential ways to win
+		// potentialWins[0] = 
+		var potentialWins = [ [1,2,3,4,6,8], [1,3,6], [2,3,4,6], [1,2,3], [1,2,3,4], [3], [1,2], [1], [0]];
+		var wins = [ [ [1,2],[4,8], [3,6] ], [[0,2],[4,7]], [[5,8],[4,7]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
+		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
 		//private methods
+		
 		function updateBoard( position, counter ) {
 			board[ position ] = counter;
 		}
 
+		Array.prototype.filterIndex = function(fun/*, thisArg*/) {
+	    'use strict';
+
+	    if (this === void 0 || this === null) {
+	      throw new TypeError();
+	    }
+
+	    var t = Object(this);
+	    var len = t.length >>> 0;
+	    if (typeof fun !== 'function') {
+	      throw new TypeError();
+	    }
+
+	    var res = [];
+	    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+	    for (var i = 0; i < len; i++) {
+	      if (i in t) {
+	        var val = t[i];
+
+	        // NOTE: Technically this should Object.defineProperty at
+	        //       the next index, as push can be affected by
+	        //       properties on Object.prototype and Array.prototype.
+	        //       But that method's new, and collisions should be
+	        //       rare, so use the more-compatible alternative.
+	        if (fun.call(thisArg, val, i, t)) {
+	          res.push(i);
+	        }
+	    	}
+    	}
+    	return res;
+    };
+
+    function oppositeCounter (counter) {
+    	return counter === "X" ? "O" : "X";
+    }
+
+    function isFilled( position ) {
+    	return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
+    }
 		function foundPositionToBlock( counter ) {
 			// search for any possible winning scenarios for counter.
 			// return the position that could block that win.
+			var positions;
+			var counterIndexes = board.filterIndex( function( element, index ) {
+					if( element === counter ) return true;
+			});
 
+			if( counterIndexes ){
+				positions = counterIndexes.myFind( function( element, index) {
+					var possibleWins = wins[element];
+						var possPos =  possibleWins.myFind( function ( e, i) {
+							if( counterIndexes.indexOf( e[0]) >= 0 && !isFilled( e[1] ) ){
+								return e[1]; 
+							}
+							else if( counterIndexes.indexOf( e[1]) >= 0 && !isFilled( e[0] ) ) {
+								return e[0];
+							}
+							else return undefined;
+						});
+						console.log( possPos );
+						if( possPos ) return possPos;
+				});
+			}
+			console.log( positions);
+			return positions;
 		}
 
 		function found3InARow ( counter ) {
 			if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
 				  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
 				  ( board[ 6 ] === counter && board[ 7 ] === counter && board[ 8 ] === counter ) ||
-				  ( board[ 0 ] === counter && board[ 3 ] === counter && board[ 0 ] === counter ) ||
+				  ( board[ 0 ] === counter && board[ 3 ] === counter && board[ 6 ] === counter ) ||
 				  ( board[ 1 ] === counter && board[ 4 ] === counter && board[ 7 ] === counter ) ||
 				  ( board[ 2 ] === counter && board[ 5 ] === counter && board[ 8 ] === counter ) ||
 				  ( board[ 0 ] === counter && board[ 4 ] === counter && board[ 8 ] === counter ) ||
@@ -43,6 +133,7 @@ var BoardGame = (function(){
 		   		return true;
 			}
 		}
+
 		function checkForGameOver(){
 			if( playCount < 3) {
 				return false;
@@ -65,7 +156,8 @@ var BoardGame = (function(){
 
 		function newGame() {
 			isPlayer1 = undefined;
-			board = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+			playCount = 0;
+			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		}
 
 		function isPlayer1Computer() {
@@ -87,6 +179,9 @@ var BoardGame = (function(){
 		  isPlayer1Computer : function() {
 		  	return isPlayer1Computer();
 		  },
+		  setPlayer1 : function ( player1 ) {
+		  	isPlayer1 = player1;
+		  },
 		  resetGame : function(){
 		  	newGame();
 		  },
@@ -94,10 +189,15 @@ var BoardGame = (function(){
 		  	return getCounter(isComputer);
 		  },
 
+		  getPlayCount : function() {
+		  	return playCount;
+		  },
+
 		  positionToBlock : function() {
 		  	var counter = isPlayer1Computer() ? "O": "X";
 		  	return foundPositionToBlock( counter );
 		  },
+
 			checkForGameOver : function( position, isComputer ) {
 		  	updateBoard( position, getCounter( isComputer ) );
 		  	incPlayCount();
@@ -130,7 +230,7 @@ var BoardGame = (function(){
       if ( !instance ) {
         instance = init( player1 );
       }
-
+      
     	return instance;
   	}
 
@@ -145,8 +245,6 @@ function enableGame(){
 	$( ".gameboard" ).find( fields ).attr("disabled", false);
 }
 function resetGame (){
-	// isPlayer1Computer = undefined;
-	// board = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
 	var game = BoardGame.getInstance();
 	game.resetGame();
 	var fields = $( ".field" );
@@ -175,10 +273,10 @@ function playComputerMove ( game ) {
 	
 	var position = generateComputerMove(game);
 	// update DOM
-	updateGameBoard( game, position -1, true );
+	updateGameBoard( game, position, true );
 
 	// update cache
-	var result = game.checkForGameOver( position - 1, true );
+	var result = game.checkForGameOver( position, true );
 
 }
 
@@ -187,15 +285,10 @@ function badChoice ( position, game ) {
 	// is no other option.
 	// In order to ensure this, the function badChoice will tell us if a edge has been selected 
 	// when a non-edge is available.
-	var edgeSpaces = [ 2, 4, 6, 8 ];
+	// var edgeSpaces = [ 2, 4, 6, 8 ];
+	var edgeSpaces = [ 1, 3, 5, 7 ];
 	var isEdge = false;
 	var unfilledSpaces = game.getUnfilledSpaces();
-	// This is how I'm checking if there are only the edge spaces left:
-	// I take the unfilledSpaces array and filter out any edge spaces.
-	// If the resulting array is empty then there is nothing but edge spaces left.
-	// In this case the move/position should be allowed.
-	// If the resulting array is not empty then there are alternative positions and we'd 
-	// want to play one of those first.
 	var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
 	if( nonEdgeSpaces.length ) {
 		isEdge = edgeSpaces.indexOf( position ) !== -1;
@@ -213,9 +306,11 @@ function generateComputerMove (game) {
 	// If position a 'bad' choice then recursively generate another position and test with badChoice again.
 
 	// First check if we need to block the other player's win.
-	var position = game.positionToBlock();
-	if( position.length ) return position[ 0 ];
-
+	var position;
+	if( game.getPlayCount() > 3 ) {
+		position = game.positionToBlock();
+		if( position && position>=0 && position<9 ) return position;
+	}
 	var unfilledSpaces = game.getUnfilledSpaces();
 	position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
   return ( badChoice( position, game )) ? generateComputerMove (game) : position;
@@ -226,12 +321,14 @@ $(document).ready (function(){
 	$("#player1").click (function(){
 		var isPlayer1Computer = false;
 		var game = BoardGame.getInstance( "You");
+		game.setPlayer1("You");
 		$('#readyModal').modal('show');
   });
 
   $("#player2").click (function(){
   	var isPlayer1Computer = true;
   	var game = BoardGame.getInstance( "Computer");
+		game.setPlayer1("Computer");
 		$('#readyModal').modal('show');
   });
 
