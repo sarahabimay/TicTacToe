@@ -4,7 +4,33 @@ var domStuff = {
 
 };
 
-Array.prototype.myFind = function(predicate) {
+Array.prototype.filterIndex = function(fun/*, thisArg*/) {
+  'use strict';
+
+  if (this === void 0 || this === null) {
+    throw new TypeError();
+  }
+
+  var t = Object(this);
+  var len = t.length >>> 0;
+  if (typeof fun !== 'function') {
+    throw new TypeError();
+  }
+
+  var res = [];
+  var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+  for (var i = 0; i < len; i++) {
+    if (i in t) {
+      var val = t[i];
+      if (fun.call(thisArg, val, i, t)) {
+        res.push(i);
+      }
+  	}
+	}
+	return res;
+};
+
+Array.prototype.findValue = function(predicate) {
   if (this === null) {
     throw new TypeError('Array.prototype.find called on null or undefined');
   }
@@ -40,74 +66,75 @@ var BoardGame = (function(){
     /// private members
 		var isPlayer1 = player1;
 		var playCount = 0;
-		// var board = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
 		var board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
-		// the array below represents all of the potential ways to win
-		// potentialWins[0] = 
-		var potentialWins = [ [1,2,3,4,6,8], [1,3,6], [2,3,4,6], [1,2,3], [1,2,3,4], [3], [1,2], [1], [0]];
-		var wins = [ [ [1,2],[4,8], [3,6] ], [[0,2],[4,7]], [[5,8],[4,7]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
+		// the 'winningPositions' array represents all of the ways to win based on your starting position
+		// =>e.g. [0] starting position has 3 possible ways to win: (0,1,2), (0,4,8), (0,3,6),
+		// =>e.g. [1] starting positon has 2 possible ways to win: (1,4, 7), (1,0,2), etc..
+		var winningPositions = [ [ [1,2],[4,8],[3,6] ], [[0,2],[4,7]], [[5,8],[4,7]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
 		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
-		//private methods
 		
+		//private methods
 		function updateBoard( position, counter ) {
 			board[ position ] = counter;
 		}
-
-		Array.prototype.filterIndex = function(fun/*, thisArg*/) {
-	    'use strict';
-
-	    if (this === void 0 || this === null) {
-	      throw new TypeError();
-	    }
-
-	    var t = Object(this);
-	    var len = t.length >>> 0;
-	    if (typeof fun !== 'function') {
-	      throw new TypeError();
-	    }
-
-	    var res = [];
-	    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-	    for (var i = 0; i < len; i++) {
-	      if (i in t) {
-	        var val = t[i];
-
-	        // NOTE: Technically this should Object.defineProperty at
-	        //       the next index, as push can be affected by
-	        //       properties on Object.prototype and Array.prototype.
-	        //       But that method's new, and collisions should be
-	        //       rare, so use the more-compatible alternative.
-	        if (fun.call(thisArg, val, i, t)) {
-	          res.push(i);
-	        }
-	    	}
-    	}
-    	return res;
-    };
 
     function oppositeCounter (counter) {
     	return counter === "X" ? "O" : "X";
     }
 
-    function isFilled( position ) {
+    function isPositionFilled( position ) {
     	return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
     }
-		function foundPositionToBlock( counter ) {
+
+    function needToCheckForUserWin() {
+	  	var userPlayCount = isPlayer1Computer() ? 3 : 2;
+	  	if (playCount <= userPlayCount) return false;
+	  	return true;
+		}
+
+		function findWinningPosition ( isComputer ) {
 			// search for any possible winning scenarios for counter.
 			// return the position that could block that win.
-			var positions;
+			var position;
+		  var counter = getCounter( isComputer );// this is the counter for the user
 			var counterIndexes = board.filterIndex( function( element, index ) {
 					if( element === counter ) return true;
 			});
 
 			if( counterIndexes ){
-				positions = counterIndexes.myFind( function( element, index) {
-					var possibleWins = wins[element];
-						var possPos =  possibleWins.myFind( function ( e, i) {
-							if( counterIndexes.indexOf( e[0]) >= 0 && !isFilled( e[1] ) ){
+				position = counterIndexes.findValue( function( element, index) {
+					var possibleWins = winnigPositions[element];
+						var possPos =  possibleWins.findValue( function ( e, i) {
+							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
 								return e[1]; 
 							}
-							else if( counterIndexes.indexOf( e[1]) >= 0 && !isFilled( e[0] ) ) {
+							else if( counterIndexes.indexOf( e[1]) >= 0 && !isPositionFilled( e[0] ) ) {
+								return e[0];
+							}
+							else return undefined;
+						});
+						if( possPos ) return possPos;
+				});
+			}
+			return position;
+		}
+		function userPositionToBlock() {
+			// search for any possible winning scenarios for counter.
+			// return the position that could block that win.
+			var positions;
+		  var counter = getCounter( false );// this is the counter for the user
+			var counterIndexes = board.filterIndex( function( element, index ) {
+					if( element === counter ) return true;
+			});
+
+			if( counterIndexes ){
+				positions = counterIndexes.findValue( function( element, index) {
+					var possibleWins = winningPositions[element];
+						var possPos =  possibleWins.findValue( function ( e, i) {
+							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
+								return e[1]; 
+							}
+							else if( counterIndexes.indexOf( e[1]) >= 0 && !isPositionFilled( e[0] ) ) {
 								return e[0];
 							}
 							else return undefined;
@@ -172,7 +199,7 @@ var BoardGame = (function(){
 				return isPlayer1Computer() ? "O" : "X";
 			}
 		}
-
+		
 		return {
 
 		  // Public methods and variables
@@ -193,9 +220,15 @@ var BoardGame = (function(){
 		  	return playCount;
 		  },
 
-		  positionToBlock : function() {
-		  	var counter = isPlayer1Computer() ? "O": "X";
-		  	return foundPositionToBlock( counter );
+		  userPositionToBlock : function() {
+		  	if ( !needToCheckForUserWin() ) return -1;
+		  	// return userPositionToBlock();
+		  	return findWinningPosition( false );
+		  },
+
+		  computerWinPosition : function() {
+		  	if( !needToCheckForUserWin() ) return -1;
+		  	return findWinningPosition( true );
 		  },
 
 			checkForGameOver : function( position, isComputer ) {
@@ -297,18 +330,21 @@ function badChoice ( position, game ) {
 }
 
 function generateComputerMove (game) {
-	// Board array is like this: [  1, 2, 3, 4, 5, 6, 7, 8, 9 ];
-	// Where 1 is the top, left corner on the tictactoe board, 3 is top, right corner etc..
-	// Player1 is 'X'
-	
-	// The first time this function is called position will be undefined and the function
-	// will randomly choose a position.
+	// First, check if computer needs to block a potential user win.  If so then this is the next position.
+	// Then, check if there is a potential win for the computer.  If so then this is the next position.
+	// Finally, randomly select any remaining corner position or if there are none then select any of the 
+	// remaining 'edge' positions.
+
+
 	// If position a 'bad' choice then recursively generate another position and test with badChoice again.
 
 	// First check if we need to block the other player's win.
-	var position;
-	if( game.getPlayCount() > 3 ) {
-		position = game.positionToBlock();
+	var position = game.userPositionToBlock();
+	if( position >= 0 ) {
+		if( position && position>=0 && position<9 ) return position;
+	}
+	position = game.computerWinPosition();
+	if( position >= 0 ) {
 		if( position && position>=0 && position<9 ) return position;
 	}
 	var unfilledSpaces = game.getUnfilledSpaces();
