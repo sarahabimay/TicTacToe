@@ -216,7 +216,6 @@ var BoardGame = (function(){
 				var fieldsWithoutXorO = board.filter( function( value, index) {
 					return ( value === "X" || value === "O" ) ? false : true;
 				});
-				console.log( 'Unfilled Positions: ' + fieldsWithoutXorO );
 				return fieldsWithoutXorO;
 			}
 	  };
@@ -324,8 +323,7 @@ $(document).ready (function(){
 	document.addEventListener( 'computersturn', function(e) {
 		var game = BoardGame.getInstance();
 		if( playComputerMove( game ) ){
-					console.log( "Someone has won or drawn" );
-					resetGame();
+			resetGame();
 		}
 	});
 
@@ -381,7 +379,6 @@ $(document).ready (function(){
 
 			//update cache
 			if( game.checkForGameOver( position, false ) ) {
-				console.log( "Someone has won or drawn");
 				resetGame();
 			}
 			else {
