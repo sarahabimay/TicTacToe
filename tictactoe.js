@@ -70,7 +70,7 @@ var BoardGame = (function(){
 		// the 'winningPositions' array represents all of the ways to win based on your starting position
 		// =>e.g. [0] starting position has 3 possible ways to win: (0,1,2), (0,4,8), (0,3,6),
 		// =>e.g. [1] starting positon has 2 possible ways to win: (1,4, 7), (1,0,2), etc..
-		var winningPositions = [ [ [1,2],[4,8],[3,6] ], [[0,2],[4,7]], [[5,8],[4,7]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
+		var winningPositions = [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
 		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
 		
 		//private methods
