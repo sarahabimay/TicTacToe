@@ -143,6 +143,7 @@ var BoardGame = (function(){
 		}
 		
 		function found3InARow ( counter ) {
+			// this could be improved to use the 'winningPositions' array
 			if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
 				  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
 				  ( board[ 6 ] === counter && board[ 7 ] === counter && board[ 8 ] === counter ) ||
