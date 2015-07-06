@@ -74,6 +74,28 @@ var BoardGame = (function(){
 		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
 		
 		//private methods
+		function incPlayCount(){
+			return playCount++;
+		}
+
+		function newGame() {
+			isPlayer1 = undefined;
+			playCount = 0;
+			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+		}
+
+		function isPlayer1Computer() {
+			return ( isPlayer1 === "Computer" ) ? true : false;
+		}
+
+		function getCounter( isComputer ){
+			if( isComputer ) {
+				return isPlayer1Computer() ? "X" : "O";
+			}
+			else {
+				return isPlayer1Computer() ? "O" : "X";
+			}
+		}
 		function updateBoard( position, counter ) {
 			board[ position ] = counter;
 		}
@@ -149,28 +171,6 @@ var BoardGame = (function(){
 			}
 		}
 
-		function incPlayCount(){
-			return playCount++;
-		}
-
-		function newGame() {
-			isPlayer1 = undefined;
-			playCount = 0;
-			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
-		}
-
-		function isPlayer1Computer() {
-			return ( isPlayer1 === "Computer" ) ? true : false;
-		}
-
-		function getCounter( isComputer ){
-			if( isComputer ) {
-				return isPlayer1Computer() ? "X" : "O";
-			}
-			else {
-				return isPlayer1Computer() ? "O" : "X";
-			}
-		}
 		
 		return {
 
@@ -186,10 +186,6 @@ var BoardGame = (function(){
 		  },
 		  getCounter : function (isComputer) {
 		  	return getCounter(isComputer);
-		  },
-
-		  getPlayCount : function() {
-		  	return playCount;
 		  },
 
 		  blockUserPosition : function() {
@@ -244,15 +240,16 @@ var BoardGame = (function(){
 	
 
 // helper functions to keep code d.r.y.
-function enableGame(){
+function setDisable( toggle ){
 	var fields = $( ".field" );
-	$( ".gameboard" ).find( fields ).attr("disabled", false);
+	$( ".gameboard" ).find( fields ).attr("disabled", toggle);
 }
 function resetGame (){
 	var game = BoardGame.getInstance();
 	game.resetGame();
 	var fields = $( ".field" );
 	$( ".gameboard" ).find( fields ).text( "-" );
+	setDisable( true );
 	var p1Text = "Player1: ";
 	var p2Text = "Player2: ";
 	$("#p1Text").text( p1Text );
@@ -261,14 +258,14 @@ function resetGame (){
 	$("#playerselect").show();
 }
 
-function updateGameBoard ( game, position, isComputer ){
+function updateGameBoardUI ( game, position, isComputer ){
 	// This function will place an X or O on the button element with id equivalent to 'position'.
 	// The html game board has id's which are numbered 1 to 9 in roman numerals so array 'romans'
 	// maps roman numerals to numbers.
 	var counter = game.getCounter( isComputer );
 	var field = $( "#" + domStuff.romans[ position ] );
 	$( ".gameboard" ).find( field ).text( counter );
-	$( ".gameboard" ).find( field ).attr( "disabled", true );
+	// $( ".gameboard" ).find( field ).attr( "disabled", true );
 	field.addClass( "disable");
 }
 
@@ -277,10 +274,10 @@ function playComputerMove ( game ) {
 	
 	var position = generateComputerMove(game);
 	// update DOM
-	updateGameBoard( game, position, true );
+	updateGameBoardUI( game, position, true );
 
 	// update cache
-	var result = game.checkForGameOver( position, true );
+	return game.checkForGameOver( position, true );
 
 }
 
@@ -289,7 +286,6 @@ function badChoice ( position, game ) {
 	// is no other option.
 	// In order to ensure this, the function badChoice will tell us if a edge has been selected 
 	// when a non-edge is available.
-	// var edgeSpaces = [ 2, 4, 6, 8 ];
 	var edgeSpaces = [ 1, 3, 5, 7 ];
 	var isEdge = false;
 	var unfilledSpaces = game.getUnfilledSpaces();
@@ -306,20 +302,19 @@ function generateComputerMove (game) {
 	// Finally, randomly select any remaining corner position or if there are none then select any of the 
 	// remaining 'edge' positions.
 
-
-	// If position a 'bad' choice then recursively generate another position and test with badChoice again.
-
 	// First check if we need to block the other player's win.
 	var position = game.blockUserPosition();
 	if( position >= 0 ) {
 		if( position && position>=0 && position<9 ) return position;
 	}
+	// Then check if there is a position which could win the game for the computer.
 	position = game.computerWinPosition();
 	if( position >= 0 ) {
 		if( position && position>=0 && position<9 ) return position;
 	}
 	var unfilledSpaces = game.getUnfilledSpaces();
 	position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
+	// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
   return ( badChoice( position, game )) ? generateComputerMove (game) : position;
 }
 
@@ -355,7 +350,7 @@ $(document).ready (function(){
 				console.log( "Someone has won" );
 			}
 		}
-		enableGame();
+		setDisable( false );
 	});
 
 	$(".notreadytoplay").click (function() {
@@ -376,7 +371,7 @@ $(document).ready (function(){
 		if( game.isPositionEmpty( position )){
 
 			// update DOM
-			updateGameBoard( game, position, false );
+			updateGameBoardUI( game, position, false );
 
 			//update cache
 			if( game.checkForGameOver( position, false ) ) {
