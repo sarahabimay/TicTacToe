@@ -103,7 +103,7 @@ var BoardGame = (function(){
 
 			if( counterIndexes ){
 				position = counterIndexes.findValue( function( element, index) {
-					var possibleWins = winnigPositions[element];
+					var possibleWins = winningPositions[element];
 						var possPos =  possibleWins.findValue( function ( e, i) {
 							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
 								return e[1]; 
@@ -118,35 +118,7 @@ var BoardGame = (function(){
 			}
 			return position;
 		}
-		function userPositionToBlock() {
-			// search for any possible winning scenarios for counter.
-			// return the position that could block that win.
-			var positions;
-		  var counter = getCounter( false );// this is the counter for the user
-			var counterIndexes = board.filterIndex( function( element, index ) {
-					if( element === counter ) return true;
-			});
-
-			if( counterIndexes ){
-				positions = counterIndexes.findValue( function( element, index) {
-					var possibleWins = winningPositions[element];
-						var possPos =  possibleWins.findValue( function ( e, i) {
-							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
-								return e[1]; 
-							}
-							else if( counterIndexes.indexOf( e[1]) >= 0 && !isPositionFilled( e[0] ) ) {
-								return e[0];
-							}
-							else return undefined;
-						});
-						console.log( possPos );
-						if( possPos ) return possPos;
-				});
-			}
-			console.log( positions);
-			return positions;
-		}
-
+		
 		function found3InARow ( counter ) {
 			if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
 				  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
@@ -220,9 +192,8 @@ var BoardGame = (function(){
 		  	return playCount;
 		  },
 
-		  userPositionToBlock : function() {
+		  blockUserPosition : function() {
 		  	if ( !needToCheckForUserWin() ) return -1;
-		  	// return userPositionToBlock();
 		  	return findWinningPosition( false );
 		  },
 
@@ -339,7 +310,7 @@ function generateComputerMove (game) {
 	// If position a 'bad' choice then recursively generate another position and test with badChoice again.
 
 	// First check if we need to block the other player's win.
-	var position = game.userPositionToBlock();
+	var position = game.blockUserPosition();
 	if( position >= 0 ) {
 		if( position && position>=0 && position<9 ) return position;
 	}
