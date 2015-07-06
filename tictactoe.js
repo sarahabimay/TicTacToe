@@ -4,6 +4,7 @@ var domStuff = {
 
 };
 
+// adapt JS Array filter method to return the index instead of the value
 Array.prototype.filterIndex = function(fun/*, thisArg*/) {
   'use strict';
 
@@ -30,6 +31,7 @@ Array.prototype.filterIndex = function(fun/*, thisArg*/) {
 	return res;
 };
 
+// adapt ES6 Array find method such that it just return the first found value 
 Array.prototype.findValue = function(predicate) {
   if (this === null) {
     throw new TypeError('Array.prototype.find called on null or undefined');
@@ -79,6 +81,7 @@ var BoardGame = (function(){
 		}
 
 		function newGame() {
+			// reset private variables when a new game begins
 			isPlayer1 = undefined;
 			playCount = 0;
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
@@ -100,25 +103,23 @@ var BoardGame = (function(){
 			board[ position ] = counter;
 		}
 
-    function oppositeCounter (counter) {
-    	return counter === "X" ? "O" : "X";
-    }
-
     function isPositionFilled( position ) {
     	return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
     }
 
     function needToCheckForUserWin() {
+    	// This checks whether the user has played at least 2 moves and returns if they have.
+    	// The number of plays made is different depending on whether the User or the Computer went first.
 	  	var userPlayCount = isPlayer1Computer() ? 3 : 2;
 	  	if (playCount <= userPlayCount) return false;
 	  	return true;
 		}
 
 		function findWinningPosition ( isComputer ) {
-			// search for any possible winning scenarios for counter.
-			// return the position that could block that win.
+			// Search for any possible winning scenarios for 'counter'.
+			// Return the position that could block that win.
 			var position;
-		  var counter = getCounter( isComputer );// this is the counter for the user
+		  var counter = getCounter( isComputer );// this is the counter for the user or computer
 			var counterIndexes = board.filterIndex( function( element, index ) {
 					if( element === counter ) return true;
 			});
@@ -319,16 +320,22 @@ function generateComputerMove (game) {
 }
 
 $(document).ready (function(){
-	
+
+	document.addEventListener( 'computersturn', function(e) {
+		var game = BoardGame.getInstance();
+		if( playComputerMove( game ) ){
+					console.log( "Someone has won or drawn" );
+					resetGame();
+		}
+	});
+
 	$("#player1").click (function(){
-		var isPlayer1Computer = false;
 		var game = BoardGame.getInstance( "You");
 		game.setPlayer1("You");
 		$('#readyModal').modal('show');
   });
 
   $("#player2").click (function(){
-  	var isPlayer1Computer = true;
   	var game = BoardGame.getInstance( "Computer");
 		game.setPlayer1("Computer");
 		$('#readyModal').modal('show');
@@ -336,7 +343,6 @@ $(document).ready (function(){
 
 	$(".readytoplay").click (function() {
 		var game = BoardGame.getInstance();
-
 		var p1Text = "Player1: " + ( game.isPlayer1Computer() ? "Computer" : "You");
 		var p2Text = "Player2: " + ( game.isPlayer1Computer() ? "You" : "Computer");
 		$("#p1Text").text( p1Text );
@@ -346,10 +352,10 @@ $(document).ready (function(){
 		$("#stateofplay").show();
 
 		if( game.isPlayer1Computer() ) {
-			if( playComputerMove( game ) ){
-				console.log( "Someone has won" );
-			}
+			// trigger computer move
+			document.dispatchEvent( new Event('computersturn') );
 		}
+		// set disable=false to enable game play
 		setDisable( false );
 	});
 
@@ -375,15 +381,12 @@ $(document).ready (function(){
 
 			//update cache
 			if( game.checkForGameOver( position, false ) ) {
-				console.log( "Someone has won");
+				console.log( "Someone has won or drawn");
 				resetGame();
 			}
 			else {
 				// trigger computer move
-				if( playComputerMove( game ) ){
-					console.log( "Someone has won" );
-					resetGame();
-				}
+				document.dispatchEvent( new Event('computersturn') );
 			}
 		}
 	});
