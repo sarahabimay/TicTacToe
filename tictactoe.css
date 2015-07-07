@@ -13,9 +13,16 @@ div {
 .row{
 	margin-bottom: 5px;
 }
-.players{
-	display: inline;
-	position:relative;
+.p1, .p2 {
+	text-align: left;	
+}
+/* .player1div is being ignored/overwritten by bootstrap css*/
+.player1div {
+	padding-left:10%;
+	width: 15%;
+}
+.playbut {
+	padding-top: 2%;
 }
 #player2{
 	position: absolute;
@@ -24,9 +31,7 @@ div {
 #stateofplay{
 	display: none;
 }
-.selection{
-	margin-bottom: 10px;
-}
+
 .leftcol .middlecol .rightcol{
 	position: relative;
 }
