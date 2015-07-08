@@ -214,6 +214,7 @@ var BoardGame = (function(){
 			}
 			return isEdge;
 		}
+		
 	  function generateComputerMove () {
 			// First, check if there is a potential win for the computer.  If so then this is the next position.
 			// Finally, randomly select any remaining corner position or if there are none then select any of the 
@@ -240,17 +241,27 @@ var BoardGame = (function(){
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////
 		function found3InARow ( counter ) {
 			// this could be improved to use the 'winningPositions' array
-			if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
-				  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
-				  ( board[ 6 ] === counter && board[ 7 ] === counter && board[ 8 ] === counter ) ||
-				  ( board[ 0 ] === counter && board[ 3 ] === counter && board[ 6 ] === counter ) ||
-				  ( board[ 1 ] === counter && board[ 4 ] === counter && board[ 7 ] === counter ) ||
-				  ( board[ 2 ] === counter && board[ 5 ] === counter && board[ 8 ] === counter ) ||
-				  ( board[ 0 ] === counter && board[ 4 ] === counter && board[ 8 ] === counter ) ||
-				  ( board[ 2 ] === counter && board[ 4 ] === counter && board[ 6 ] === counter ) ) {
-		   			alert( counter + ' has won the game. Start a new game');
-		   		return true;
+			var counterIndexes = findCounterPositions( counter );
+			for (var i = 0; i < counterIndexes.length; i++) {
+				positions = winningPositions[ counterIndexes[ i ] ];
+				for (var j = 0; j < positions.length; j++ ) {
+					if ( (counterIndexes.indexOf( positions[j][0] ) >=0 && counterIndexes.indexOf( positions[j][1] ) >= 0 ) ) {
+						alert( counter + ' has won the game. Start a new game');
+						return true;
+					}
+				}
 			}
+			// if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
+			// 	  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
+			// 	  ( board[ 6 ] === counter && board[ 7 ] === counter && board[ 8 ] === counter ) ||
+			// 	  ( board[ 0 ] === counter && board[ 3 ] === counter && board[ 6 ] === counter ) ||
+			// 	  ( board[ 1 ] === counter && board[ 4 ] === counter && board[ 7 ] === counter ) ||
+			// 	  ( board[ 2 ] === counter && board[ 5 ] === counter && board[ 8 ] === counter ) ||
+			// 	  ( board[ 0 ] === counter && board[ 4 ] === counter && board[ 8 ] === counter ) ||
+			// 	  ( board[ 2 ] === counter && board[ 4 ] === counter && board[ 6 ] === counter ) ) {
+		 //   			alert( counter + ' has won the game. Start a new game');
+		 //   		return true;
+			// }
 		}
 
 		function checkForGameOver(){
