@@ -17,9 +17,8 @@ div {
 	text-align: left;	
 }
 /* .player1div is being ignored/overwritten by bootstrap css*/
-.player1div {
+#player1div {
 	padding-left:10%;
-	width: 15%;
 }
 .playbut {
 	padding-top: 2%;
