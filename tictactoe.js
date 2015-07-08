@@ -1,11 +1,10 @@
-
 var domStuff = {
 		romans : [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"]
 
 };
 
 // adapt JS Array filter method to return the index instead of the value
-Array.prototype.filterIndex = function(fun/*, thisArg*/) {
+Array.prototype.filterIndex = function (fun/*, thisArg*/) {
   'use strict';
 
   if (this === void 0 || this === null) {
@@ -32,7 +31,7 @@ Array.prototype.filterIndex = function(fun/*, thisArg*/) {
 };
 
 // adapt ES6 Array find method such that it just return the first found value 
-Array.prototype.findValue = function(predicate) {
+Array.prototype.findValue = function (predicate) {
   if (this === null) {
     throw new TypeError('Array.prototype.findValue called on null or undefined');
   }
@@ -55,7 +54,7 @@ Array.prototype.findValue = function(predicate) {
   return undefined;
 };
 
-var BoardGame = (function(){
+var BoardGame = (function () {
 
 
 	// Instance stores a reference to the Singleton
@@ -70,7 +69,6 @@ var BoardGame = (function(){
 		var player1Type=player1;
 		var player2Type=player2;
 		var currentPlayer = "player1"; // start with undefined player
-		var gameM = gameMode();
 		var playCount = 0;
 		var board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
 		// the 'winningPositions' array represents all of the ways to win based on your starting position
@@ -99,18 +97,12 @@ var BoardGame = (function(){
 			}
 		}
 
-		// function setGameMode ( player1, player2 ) {
-		// 	player1Type= player1;
-		// 	player2Type= player2;
-		// 	return gameMode();
-		// }
-
 		function switchCurrentPlayer () {
 			currentPlayer = currentPlayer === undefined ? "player1" : (currentPlayer === "player1" ? "player2" : "player1");
 			return currentPlayer;
 		}
 
-		function incPlayCount (){
+		function incPlayCount () {
 			return playCount++;
 		}
 
@@ -150,14 +142,14 @@ var BoardGame = (function(){
 		//////// functions used by 'generateComputerMove'  ///////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////
     
-    function getUnfilledSpaces (){
+    function getUnfilledSpaces () {
 			var fieldsWithoutXorO = board.filter( function( value, index) {
 				return ( value === "X" || value === "O" ) ? false : true;
 			});
 			return fieldsWithoutXorO;
 		}
 
-		function needToCheckForUserWin( counter ) {
+		function needToCheckForUserWin ( counter ) {
     	// This checks whether the user has played at least 2 moves and returns if they have.
     	// The number of plays made is different depending on whether the User or the Computer went first.
 	  	// var userPlayCount = isPlayer1Computer() ? 3 : 2;
@@ -173,9 +165,9 @@ var BoardGame = (function(){
 			var counterIndexes = findCounterPositions( counter );
 
 			if( counterIndexes ){
-				position = counterIndexes.findValue( function( element, index) {
+				position = counterIndexes.findValue( function( element) {
 					possibleWins = winningPositions[element];
-						possPos =  possibleWins.findValue( function ( e, i) {
+						possPos =  possibleWins.findValue( function ( e) {
 							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
 								return e[1]; 
 							}
@@ -214,7 +206,7 @@ var BoardGame = (function(){
 			}
 			return isEdge;
 		}
-		
+
 	  function generateComputerMove () {
 			// First, check if there is a potential win for the computer.  If so then this is the next position.
 			// Finally, randomly select any remaining corner position or if there are none then select any of the 
@@ -241,6 +233,7 @@ var BoardGame = (function(){
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////
 		function found3InARow ( counter ) {
 			// this could be improved to use the 'winningPositions' array
+			var positions;
 			var counterIndexes = findCounterPositions( counter );
 			for (var i = 0; i < counterIndexes.length; i++) {
 				positions = winningPositions[ counterIndexes[ i ] ];
@@ -251,20 +244,9 @@ var BoardGame = (function(){
 					}
 				}
 			}
-			// if( ( board[ 0 ] === counter && board[ 1 ] === counter && board[ 2 ] === counter ) ||
-			// 	  ( board[ 3 ] === counter && board[ 4 ] === counter && board[ 5 ] === counter ) ||
-			// 	  ( board[ 6 ] === counter && board[ 7 ] === counter && board[ 8 ] === counter ) ||
-			// 	  ( board[ 0 ] === counter && board[ 3 ] === counter && board[ 6 ] === counter ) ||
-			// 	  ( board[ 1 ] === counter && board[ 4 ] === counter && board[ 7 ] === counter ) ||
-			// 	  ( board[ 2 ] === counter && board[ 5 ] === counter && board[ 8 ] === counter ) ||
-			// 	  ( board[ 0 ] === counter && board[ 4 ] === counter && board[ 8 ] === counter ) ||
-			// 	  ( board[ 2 ] === counter && board[ 4 ] === counter && board[ 6 ] === counter ) ) {
-		 //   			alert( counter + ' has won the game. Start a new game');
-		 //   		return true;
-			// }
 		}
 
-		function checkForGameOver(){
+		function checkForGameOver () {
 			if( playCount < 3) {
 				return false;
 			}
@@ -279,7 +261,6 @@ var BoardGame = (function(){
 				return false;
 			}
 		}
-
 		
 		return {
 
@@ -296,7 +277,7 @@ var BoardGame = (function(){
 				player2Type=player2;
 		  	isPlayer1 = player1;
 		  },
-		  resetGame : function (){
+		  resetGame : function () {
 		  	newGame();
 		  },
 
@@ -320,7 +301,7 @@ var BoardGame = (function(){
 			////// generateComputerMove' are used to generate a new computer move ////////////////////
 		  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		  
-			generateComputerMove : function() {
+			generateComputerMove : function () {
 				return generateComputerMove();
 			},
 
@@ -328,7 +309,7 @@ var BoardGame = (function(){
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 		  //////// playMove fn is used to play a computer move  //////////////////////////////////////////////////
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-		  playMove : function( position, isComputer ) {
+		  playMove : function ( position, isComputer ) {
 		  	updateBoard( position, getCounter() );
 		  	switchCurrentPlayer();
 		  	incPlayCount();
@@ -363,11 +344,11 @@ var BoardGame = (function(){
 	
 
 // helper functions to keep code d.r.y.
-function setDisable( toggle ){
+function setDisable ( toggle ) {
 	var fields = $( ".field" );
 	$( ".gameboard" ).find( fields ).attr("disabled", toggle);
 }
-function resetGame (){
+function resetGame () {
 	var p1Text, p2Text, fields;
 	var game = BoardGame.getInstance();
 	game.resetGame();
@@ -382,7 +363,7 @@ function resetGame (){
 	$("#playerselect").show();
 }
 
-function updateGameBoardUI ( counter, position, isComputer ){
+function updateGameBoardUI ( counter, position ) {
 	// This function will place an X or O on the button element with id equivalent to 'position'.
 	// The html game board has id's which are numbered 1 to 9 in roman numerals so array 'romans'
 	// maps roman numerals to numbers.
@@ -396,19 +377,19 @@ function playComputerMove ( game ) {
 	var position = game.generateComputerMove();
 
 	// update DOM
-	updateGameBoardUI( game.getCounter(), position, true );
+	updateGameBoardUI( game.getCounter(), position );
 
 	// update BoardGame 'cache'
 	return game.playMove( position, true ).checkForGameOver();
 }
 
-$(document).ready (function(){
+$(document).ready (function () {
 
-	document.addEventListener( 'HvH', function(e) {
+	document.addEventListener( 'HvH', function (e) {
 		// set disable=false to enable game play
 		setDisable( false );
 	});
-	document.addEventListener( 'HvC', function(e) {
+	document.addEventListener( 'HvC', function (e) {
 		var game = BoardGame.getInstance();
 		if( game.isPlayer1Computer() ) {
 			// trigger computer move
@@ -420,7 +401,7 @@ $(document).ready (function(){
 		}
 	});
 
-	document.addEventListener( 'CvC', function(e) {
+	document.addEventListener( 'CvC', function (e) {
 		var game = BoardGame.getInstance();
 		if( playComputerMove( game ) ){
 			// If there is a win after the computer's move then game over!
@@ -432,7 +413,7 @@ $(document).ready (function(){
 		}
 	});
 
-	document.addEventListener( 'computersturn', function(e) {
+	document.addEventListener( 'computersturn', function (e) {
 		var game = BoardGame.getInstance();
 		if( playComputerMove( game ) ){
 			// If there is a win after the computer's move then game over!
@@ -446,7 +427,7 @@ $(document).ready (function(){
 		setDisable( false );
 	});
 
-	$('#play').click( function() {
+	$('#play').click( function () {
 		var p1 = document.getElementById("player1");
 		var player1 = p1.options[p1.selectedIndex].text;
 		var p2 = document.getElementById("player2");
@@ -469,7 +450,7 @@ $(document).ready (function(){
 		$('#readyModal').modal('show');
   });*/
 
-	$(".readytoplay").click (function() {
+	$(".readytoplay").click (function () {
 		var gameMode;
 		var game = BoardGame.getInstance();
 		var p1Text = "Player1: " + game.whoIsPlayer( true );
@@ -485,17 +466,17 @@ $(document).ready (function(){
 		document.dispatchEvent( new Event( gameMode ) );
 	});
 
-	$(".notreadytoplay").click (function() {
+	$(".notreadytoplay").click (function () {
 		$('#readyModal').modal('hide');
 		resetGame();
 	});
 
-	$("#reset").click (function() {
+	$("#reset").click (function () {
 		resetGame();
 	});
 
 	// user game play:
-	$(".field").click (function(){
+	$(".field").click (function () {
 		var game = BoardGame.getInstance();
 		var thisID = $(this).attr('id');
 		var position = domStuff.romans.indexOf( thisID );
@@ -503,7 +484,7 @@ $(document).ready (function(){
 		if( game.isPositionEmpty( position )){
 
 			// update DOM
-			updateGameBoardUI( game.getCounter(), position, false );
+			updateGameBoardUI( game.getCounter(), position );
 
 			//update cache
 			if( game.playMove( position, false ).checkForGameOver() ) {
