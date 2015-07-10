@@ -1,6 +1,5 @@
 var domStuff = {
 		romans : [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"]
-
 };
 
 // adapt JS Array filter method to return the index instead of the value
@@ -108,7 +107,8 @@ var BoardGame = (function () {
 
 		function newGame () {
 			// reset private variables when a new game begins
-			isPlayer1 = undefined;
+			isPlayer1, player1Type, player2Type = undefined;
+			currentPlayer = "player1";
 			playCount = 0;
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		}
@@ -136,13 +136,13 @@ var BoardGame = (function () {
 		}
 
 		function isPositionFilled( position ) {
-    	return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
-    }
+    		return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
+    	}
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		//////// functions used by 'generateComputerMove'  ///////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////
     
-    function getUnfilledSpaces () {
+    	function getUnfilledSpaces () {
 			var fieldsWithoutXorO = board.filter( function( value, index) {
 				return ( value === "X" || value === "O" ) ? false : true;
 			});
@@ -150,12 +150,13 @@ var BoardGame = (function () {
 		}
 
 		function needToCheckForUserWin ( counter ) {
-    	// This checks whether the user has played at least 2 moves and returns if they have.
-    	// The number of plays made is different depending on whether the User or the Computer went first.
-	  	// var userPlayCount = isPlayer1Computer() ? 3 : 2;
-	  	var userPlayCount = findCounterPositions( counter ).length;
-	  	if (playCount <= userPlayCount) return false;
-	  	return true;
+	    	// This checks whether the user has played at least 2 moves and returns if they have.
+	    	// The number of plays made is different depending on whether the User or the Computer went first.
+		  	// var userPlayCount = isPlayer1Computer() ? 3 : 2;
+		  	var userPlayCount = findCounterPositions( counter ).length;
+		  	if ( userPlayCount < 2) return false;
+		  	// if (playCount <= userPlayCount) return false;
+		  	return true;
 		}
 
 		function findWinningPosition ( counter ) {
@@ -304,7 +305,6 @@ var BoardGame = (function () {
 			generateComputerMove : function () {
 				return generateComputerMove();
 			},
-
 		  
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 		  //////// playMove fn is used to play a computer move  //////////////////////////////////////////////////
@@ -409,7 +409,7 @@ $(document).ready (function () {
 		}
 		else {
 			// trigger computer turn after 1.5 seconds so it's not too fast
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1500);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
 		}
 	});
 
@@ -421,7 +421,7 @@ $(document).ready (function () {
 		}
 		else if( game.gameMode() === "CvC" ){
 			// I don't think we should ever enter here for CvC mode... but need to check before removing
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1500);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
 		}
 		// set disable=false to enable game play
 		setDisable( false );
@@ -492,7 +492,8 @@ $(document).ready (function () {
 			}
 			else if( game.gameMode() === "HvC" ){
 				// if playing a Human vs Computer game then trigger computer move after 1.5 seconds so not too fast
-				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 1500);
+				setDisable(true);
+				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 1000);
 			}
 		}
 	});
