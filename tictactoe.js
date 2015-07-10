@@ -226,9 +226,7 @@ var BoardGame = (function () {
 			}
 			unfilledSpaces = getUnfilledSpaces();
 			randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
-			console.log( "Random Index: " , randomIndex );
-			position = unfilledSpaces[ randomIndex ];
-			// position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
+			position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
 		  return ( badChoice( position )) ? generateComputerMove() : position;
 		}
