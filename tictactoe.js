@@ -162,7 +162,9 @@ var BoardGame = (function () {
 		function findWinningPosition ( counter ) {
 			// Search for any possible winning scenarios for 'counter'.
 			// Return the position that could block that win.
-			var position, possibleWins, possPos;
+			var possibleWins = [];
+			var position, possPos = -1;
+			// find all of the index positions of the 'counter' element value 
 			var counterIndexes = findCounterPositions( counter );
 
 			if( counterIndexes ){
@@ -192,7 +194,7 @@ var BoardGame = (function () {
 	  	if( !needToCheckForUserWin( getCounter() ) ) return -1;
 	  	return findWinningPosition( getCounter() );
 	  }
-
+	  
 		function badChoice ( position ) {
 			// We want the computer to always win or draw so we should only use center or edge positions unless there
 			// is no other option.
@@ -208,25 +210,30 @@ var BoardGame = (function () {
 			return isEdge;
 		}
 
+	  function getRandomPosition(){
+	  	var unfilledSpaces = getUnfilledSpaces();
+	  	var randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
+			// if first play then choose randomly from corner or center positions
+	  	if ( unfilledSpaces.length === 9 ) {
+				return unfilledSpaces[ randomIndex ];
+	  	}
+			// if not first play then choose center position if available otherwise random choice out of remainder
+			return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ randomIndex ];  	
+	  }
+
 	  function generateComputerMove () {
 			// First, check if there is a potential win for the computer.  If so then this is the next position.
 			// Finally, randomly select any remaining corner position or if there are none then select any of the 
 			// remaining 'edge' positions.
-			var position, randomIndex;
-			var unfilledSpaces = [];
 			// First check if there is a position which could win the game for the computer.
-			position = computerWinPosition();
-			if( position >= 0 ) {
-				if( position && position>=0 && position<9 ) return position;
-			}
+			var position = computerWinPosition();
+			if( position && position >= 0 && position<9 ) { return position; }
 			// Then check if we need to block the other player's win.
 			position = blockUserPosition();
-			if( position >= 0 ) {
-				if( position && position>=0 && position<9 ) return position;
-			}
-			unfilledSpaces = getUnfilledSpaces();
-			randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
-			position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
+			if( position && position >= 0 && position<9 ) { return position; } 
+
+			position = getRandomPosition();
+
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
 		  return ( badChoice( position )) ? generateComputerMove() : position;
 		}
