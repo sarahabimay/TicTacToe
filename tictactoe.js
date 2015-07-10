@@ -348,21 +348,23 @@ var BoardGame = (function () {
 // helper functions to keep code d.r.y.
 function setDisable ( toggle ) {
 	var fields = $( ".field" );
-	$( ".gameboard" ).find( fields ).attr("disabled", toggle);
+	$( ".gameboard" ).find( fields ).prop( 'disabled', toggle );
 }
+
 function resetGame () {
 	var p1Text, p2Text, fields;
 	var game = BoardGame.getInstance();
 	game.resetGame();
+	setDisable( true );
 	fields = $( ".field" );
 	$( ".gameboard" ).find( fields ).text( "-" );
-	setDisable( true );
 	p1Text = "Player1: ";
 	p2Text = "Player2: ";
 	$("#p1Text").text( p1Text );
 	$("#p2Text").text( p2Text );
 	$("#stateofplay").hide();
 	$("#playerselect").show();
+
 }
 
 function updateGameBoardUI ( counter, position ) {
@@ -371,7 +373,6 @@ function updateGameBoardUI ( counter, position ) {
 	// maps roman numerals to numbers.
 	var field = $( "#" + domStuff.romans[ position ] );
 	$( ".gameboard" ).find( field ).text( counter );
-	field.addClass( "disable");
 }
 
 function playComputerMove ( game ) {
@@ -391,6 +392,7 @@ $(document).ready (function () {
 		// set disable=false to enable game play
 		setDisable( false );
 	});
+
 	document.addEventListener( 'HvC', function (e) {
 		var game = BoardGame.getInstance();
 		if( game.isPlayer1Computer() ) {
@@ -425,8 +427,10 @@ $(document).ready (function () {
 			// I don't think we should ever enter here for CvC mode... but need to check before removing
 			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
 		}
-		// set disable=false to enable game play
-		setDisable( false );
+		else{ 
+			// set disable=false to enable game play for a human!
+			setDisable( false );
+		}
 	});
 
 	$('#play').click( function () {
@@ -437,7 +441,6 @@ $(document).ready (function () {
 		var game = BoardGame.getInstance( player1, player2);
 		game.setPlayer1(player1, player2);
 		console.log( game.gameMode());
-		// $('#readyModal').modal('show');
 
 		$("#p1Text").text( "Player1: " + game.whoIsPlayer( true ) );
 		$("#p2Text").text( "Player2: " + game.whoIsPlayer( false ) );
@@ -448,28 +451,6 @@ $(document).ready (function () {
 		gameMode = game.gameMode();
 		document.dispatchEvent( new Event( gameMode ) );
 	});
-
-
-	// $(".readytoplay").click (function () {
-	// 	var gameMode;
-	// 	var game = BoardGame.getInstance();
-	// 	var p1Text = "Player1: " + game.whoIsPlayer( true );
-	// 	var p2Text = "Player2: " + game.whoIsPlayer( false );
-	// 	$("#p1Text").text( p1Text );
-	// 	$("#p2Text").text( p2Text );
-	// 	$('#readyModal').modal('hide');
-	// 	$("#playerselect").hide();
-	// 	$("#stateofplay").show();
-
-	// 	// there are 3 game mode's: Human v Human; Human v Computer and Computer V Computer
-	// 	gameMode = game.gameMode();
-	// 	document.dispatchEvent( new Event( gameMode ) );
-	// });
-
-	// $(".notreadytoplay").click (function () {
-	// 	$('#readyModal').modal('hide');
-	// 	resetGame();
-	// });
 
 	$("#reset").click (function () {
 		resetGame();
