@@ -212,7 +212,8 @@ var BoardGame = (function () {
 			// First, check if there is a potential win for the computer.  If so then this is the next position.
 			// Finally, randomly select any remaining corner position or if there are none then select any of the 
 			// remaining 'edge' positions.
-			var position, unfilledSpaces;
+			var position, randomIndex;
+			var unfilledSpaces = [];
 			// First check if there is a position which could win the game for the computer.
 			position = computerWinPosition();
 			if( position >= 0 ) {
@@ -224,6 +225,7 @@ var BoardGame = (function () {
 				if( position && position>=0 && position<9 ) return position;
 			}
 			unfilledSpaces = getUnfilledSpaces();
+			randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
 			position = unfilledSpaces[Math.floor(Math.random() * unfilledSpaces.length)];
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
 		  return ( badChoice( position )) ? generateComputerMove() : position;
@@ -432,32 +434,13 @@ $(document).ready (function () {
 		var player1 = p1.options[p1.selectedIndex].text;
 		var p2 = document.getElementById("player2");
 		var player2 = p2.options[p2.selectedIndex].text;
-		var game = BoardGame.getInstance( /*p1 Type*/ player1, /*p2 Type*/ player2);
+		var game = BoardGame.getInstance( player1, player2);
 		game.setPlayer1(player1, player2);
 		console.log( game.gameMode());
-		$('#readyModal').modal('show');
-	});
+		// $('#readyModal').modal('show');
 
-	/*$("#player1").click (function(){
-		var game = BoardGame.getInstance( "You");
-		game.setPlayer1("You");
-		$('#readyModal').modal('show');
-  });
-
-  $("#player2").click (function(){
-  	var game = BoardGame.getInstance( "Computer");
-		game.setPlayer1("Computer");
-		$('#readyModal').modal('show');
-  });*/
-
-	$(".readytoplay").click (function () {
-		var gameMode;
-		var game = BoardGame.getInstance();
-		var p1Text = "Player1: " + game.whoIsPlayer( true );
-		var p2Text = "Player2: " + game.whoIsPlayer( false );
-		$("#p1Text").text( p1Text );
-		$("#p2Text").text( p2Text );
-		$('#readyModal').modal('hide');
+		$("#p1Text").text( "Player1: " + game.whoIsPlayer( true ) );
+		$("#p2Text").text( "Player2: " + game.whoIsPlayer( false ) );
 		$("#playerselect").hide();
 		$("#stateofplay").show();
 
@@ -466,10 +449,27 @@ $(document).ready (function () {
 		document.dispatchEvent( new Event( gameMode ) );
 	});
 
-	$(".notreadytoplay").click (function () {
-		$('#readyModal').modal('hide');
-		resetGame();
-	});
+
+	// $(".readytoplay").click (function () {
+	// 	var gameMode;
+	// 	var game = BoardGame.getInstance();
+	// 	var p1Text = "Player1: " + game.whoIsPlayer( true );
+	// 	var p2Text = "Player2: " + game.whoIsPlayer( false );
+	// 	$("#p1Text").text( p1Text );
+	// 	$("#p2Text").text( p2Text );
+	// 	$('#readyModal').modal('hide');
+	// 	$("#playerselect").hide();
+	// 	$("#stateofplay").show();
+
+	// 	// there are 3 game mode's: Human v Human; Human v Computer and Computer V Computer
+	// 	gameMode = game.gameMode();
+	// 	document.dispatchEvent( new Event( gameMode ) );
+	// });
+
+	// $(".notreadytoplay").click (function () {
+	// 	$('#readyModal').modal('hide');
+	// 	resetGame();
+	// });
 
 	$("#reset").click (function () {
 		resetGame();
