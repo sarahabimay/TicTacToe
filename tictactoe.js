@@ -291,6 +291,10 @@ var BoardGame = (function () {
 		  	newGame();
 		  },
 
+		  getCurrentPlayer(){
+		  	return currentPlayer;
+		  },
+
 		  whoIsPlayer : function ( isPlayer1 ) {
 		  	// return the 'name' of player1 if isPlayer1 is true, else return 'name' of player2.
 		  	return isPlayer1 ? player1Type : player2Type;
@@ -371,7 +375,7 @@ function resetGame () {
 	$("#p2Text").text( p2Text );
 	$("#stateofplay").hide();
 	$("#playerselect").show();
-
+	count = 0;
 }
 
 function updateGameBoardUI ( counter, position ) {
@@ -381,11 +385,11 @@ function updateGameBoardUI ( counter, position ) {
 	var field = $( "#" + domStuff.romans[ position ] );
 	$( ".gameboard" ).find( field ).text( counter );
 }
-
+var count = 0;
 function playComputerMove ( game ) {
 	// generate the computer's next move	
 	var position = game.generateComputerMove();
-
+	console.log( count++ + '. Position: ' + position + '. Player: ' + game.getCurrentPlayer());
 	// update DOM
 	updateGameBoardUI( game.getCounter(), position );
 
@@ -420,7 +424,7 @@ $(document).ready (function () {
 		}
 		else {
 			// trigger computer turn after 1.5 seconds so it's not too fast
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 2000);
 		}
 	});
 
@@ -432,7 +436,7 @@ $(document).ready (function () {
 		}
 		else if( game.gameMode() === "CvC" ){
 			// I don't think we should ever enter here for CvC mode... but need to check before removing
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 2000);
 		}
 		else{ 
 			// set disable=false to enable game play for a human!
@@ -481,7 +485,7 @@ $(document).ready (function () {
 			else if( game.gameMode() === "HvC" ){
 				// if playing a Human vs Computer game then trigger computer move after 1.5 seconds so not too fast
 				setDisable(true);
-				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 1000);
+				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 2000);
 			}
 		}
 	});
