@@ -107,7 +107,9 @@ var BoardGame = (function () {
 
 		function newGame () {
 			// reset private variables when a new game begins
-			isPlayer1, player1Type, player2Type = undefined;
+			isPlayer1 = "";
+			player1Type = "";
+			player2Type = "";
 			currentPlayer = "player1";
 			playCount = 0;
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
@@ -152,10 +154,8 @@ var BoardGame = (function () {
 		function needToCheckForUserWin ( counter ) {
 	    	// This checks whether the user has played at least 2 moves and returns if they have.
 	    	// The number of plays made is different depending on whether the User or the Computer went first.
-		  	// var userPlayCount = isPlayer1Computer() ? 3 : 2;
 		  	var userPlayCount = findCounterPositions( counter ).length;
 		  	if ( userPlayCount < 2) return false;
-		  	// if (playCount <= userPlayCount) return false;
 		  	return true;
 		}
 
@@ -165,12 +165,12 @@ var BoardGame = (function () {
 			var possibleWins = [];
 			var position, possPos = -1;
 			// find all of the index positions of the 'counter' element value 
-			var counterIndexes = findCounterPositions( counter );
+			var counterIndexes = findCounterPositions ( counter );
 
 			if( counterIndexes ){
-				position = counterIndexes.findValue( function( element) {
+				return counterIndexes.findValue( function ( element ) {
 					possibleWins = winningPositions[element];
-						possPos =  possibleWins.findValue( function ( e) {
+						return  possibleWins.findValue( function ( e ) {
 							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
 								return e[1]; 
 							}
@@ -179,7 +179,6 @@ var BoardGame = (function () {
 							}
 							else return undefined;
 						});
-						if( possPos ) return possPos;
 				});
 			}
 			return position;
@@ -194,7 +193,7 @@ var BoardGame = (function () {
 	  	if( !needToCheckForUserWin( getCounter() ) ) return -1;
 	  	return findWinningPosition( getCounter() );
 	  }
-	  
+
 		function badChoice ( position ) {
 			// We want the computer to always win or draw so we should only use center or edge positions unless there
 			// is no other option.
@@ -204,21 +203,70 @@ var BoardGame = (function () {
 			var isEdge = false;
 			var unfilledSpaces = getUnfilledSpaces();
 			var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
-			if( nonEdgeSpaces.length ) {
+
+			if( position && nonEdgeSpaces.length ) {
 				isEdge = edgeSpaces.indexOf( position ) !== -1;
 			}
 			return isEdge;
 		}
 
-	  function getRandomPosition(){
-	  	var unfilledSpaces = getUnfilledSpaces();
-	  	var randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
+		function found( counter, position ){
+			return ( board[ position ] === counter ) && true;
+		}
+
+		function opponentOnDiagCorners() {
+			var oppCounter = getOpponentsCounter();
+			var positions = findCounterPositions( oppCounter );
+			var diagonals = [ [0,8], [2,6] ];
+			return diagonals.some( function( element ) {
+				if( positions.length !== element.length ) return false;
+
+				return ( found( oppCounter, element[0]) && found( oppCounter, element[ 1 ] ) ) && true;
+			});
+		}
+		function getDiagonalStrategy() {
+			// pick any edge
+			var edges = [ 1, 3, 5, 7 ];
+			return edges[ Math.floor(Math.random() * edges.length) ];
+		}
+
+		function getWildPosition() {
+			// if not first play then choose center position if available otherwise random choice out of remainder
+			var unfilledSpaces = getUnfilledSpaces();
+  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ Math.floor(Math.random() * unfilledSpaces.length) ];
+			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
+  		return ( badChoice( position )) ? getNextPosition() : position;  
+		}
+		function diagonalStrategy() {
+			// if opponent has marked two opposing diagonal corners and current player is in the center 
+			// then this is a diagonal strategy.
+
+			var unfilledSpaces = getUnfilledSpaces();
+			return ( unfilledSpaces.length === 6 && opponentOnDiagCorners() && found( getCounter(), 4 ) ) && true;
+		}
+	  function getStrategy(){
+	  	
+	  	// if diagonalStrategy() then return diagonalStrategy
+	  	// otherwise generate a center or corner position.
+	  	return ( diagonalStrategy()) ? getDiagonalStrategy : getWildPosition;
+	  }
+
+	  function getNextPosition(){
+	  	var unfilledSpaces = []; 
+	  	var position, strategy, randomIndex = -1;
+	
 			// if first play then choose randomly from corner or center positions
 	  	if ( unfilledSpaces.length === 9 ) {
-				return unfilledSpaces[ randomIndex ];
+	  		unfilledSpaces = getUnfilledSpaces();
+	  		randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
+				position = unfilledSpaces[ randomIndex ];
 	  	}
-			// if not first play then choose center position if available otherwise random choice out of remainder
-			return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ randomIndex ];  	
+	  	else {
+		  	// Check if a strategy is needed, otherwise centre or corner position will be chosen.
+		  	strategy = getStrategy();
+		  	position = strategy && strategy();
+		  	return position;	
+			}
 	  }
 
 	  function generateComputerMove () {
@@ -227,15 +275,12 @@ var BoardGame = (function () {
 			// remaining 'edge' positions.
 			// First check if there is a position which could win the game for the computer.
 			var position = computerWinPosition();
-			if( position && position >= 0 && position<9 ) { return position; }
+			if( position >= 0 && position<9 ) { return position; }
 			// Then check if we need to block the other player's win.
 			position = blockUserPosition();
-			if( position && position >= 0 && position<9 ) { return position; } 
+			if( position >= 0 && position<9 ) { return position; } 
 
-			position = getRandomPosition();
-
-			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-		  return ( badChoice( position )) ? generateComputerMove() : position;
+			return getNextPosition();
 		}
 
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -424,7 +469,7 @@ $(document).ready (function () {
 		}
 		else {
 			// trigger computer turn after 1.5 seconds so it's not too fast
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 2000);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
 		}
 	});
 
@@ -436,7 +481,7 @@ $(document).ready (function () {
 		}
 		else if( game.gameMode() === "CvC" ){
 			// I don't think we should ever enter here for CvC mode... but need to check before removing
-			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 2000);
+			setTimeout(function(){ document.dispatchEvent( new Event('CvC') ); }, 1000);
 		}
 		else{ 
 			// set disable=false to enable game play for a human!
@@ -485,7 +530,7 @@ $(document).ready (function () {
 			else if( game.gameMode() === "HvC" ){
 				// if playing a Human vs Computer game then trigger computer move after 1.5 seconds so not too fast
 				setDisable(true);
-				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 2000);
+				setTimeout(function(){ document.dispatchEvent( new Event('computersturn') ); }, 1000);
 			}
 		}
 	});
