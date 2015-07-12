@@ -115,6 +115,13 @@ var BoardGame = (function () {
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		}
 
+ 		function isPositionEmpty ( position ) {
+			if( board[ position ] === "X" || board[ position ] === "Y" ){
+				return false;
+			}
+			return true;
+		}
+		
 		function isPlayer1Computer() {
 			return ( isPlayer1 === "Computer" ) ? true : false;
 		}
@@ -137,9 +144,6 @@ var BoardGame = (function () {
 			board[ position ] = counter;
 		}
 
-		function isPositionFilled( position ) {
-    		return ( board[ position ] === "X" || board[ position ] === "O" ) ? true : false;
-    	}
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		//////// functions used by 'generateComputerMove'  ///////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,10 +175,10 @@ var BoardGame = (function () {
 				return counterIndexes.findValue( function ( element ) {
 					possibleWins = winningPositions[element];
 						return  possibleWins.findValue( function ( e ) {
-							if( counterIndexes.indexOf( e[0]) >= 0 && !isPositionFilled( e[1] ) ){
+							if( counterIndexes.indexOf( e[0]) >= 0 && isPositionEmpty( e[1] ) ){
 								return e[1]; 
 							}
-							else if( counterIndexes.indexOf( e[1]) >= 0 && !isPositionFilled( e[0] ) ) {
+							else if( counterIndexes.indexOf( e[1]) >= 0 && isPositionEmpty( e[0] ) ) {
 								return e[0];
 							}
 							else return undefined;
@@ -326,8 +330,7 @@ var BoardGame = (function () {
 		  isPlayer1Computer : function() {
 		  	return isPlayer1Computer();
 		  },
-		  setPlayer1 : function ( player1, player2 ) {
-		  	// setGameMode( player1, player2 );
+		  setPlayers : function ( player1, player2 ) {
 		  	player1Type=player1;
 				player2Type=player2;
 		  	isPlayer1 = player1;
@@ -350,10 +353,7 @@ var BoardGame = (function () {
 		  },
 
 		  isPositionEmpty : function ( position ) {
-				if( board[ position ] === "X" || board[ position ] === "Y" ){
-					return false;
-				}
-				return true;
+		  	isPositionEmpty( position );
 			},
 
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,7 +495,7 @@ $(document).ready (function () {
 		var p2 = document.getElementById("player2");
 		var player2 = p2.options[p2.selectedIndex].text;
 		var game = BoardGame.getInstance( player1, player2);
-		game.setPlayer1(player1, player2);
+		game.setPlayers(player1, player2);
 		console.log( game.gameMode());
 
 		$("#p1Text").text( "Player1: " + game.whoIsPlayer( true ) );
