@@ -121,7 +121,7 @@ var BoardGame = (function () {
 			}
 			return true;
 		}
-		
+
 		function isPlayer1Computer() {
 			return ( isPlayer1 === "Computer" ) ? true : false;
 		}
@@ -214,11 +214,11 @@ var BoardGame = (function () {
 			return isEdge;
 		}
 
-		function found( counter, position ){
+		function found ( counter, position ){
 			return ( board[ position ] === counter ) && true;
 		}
 
-		function opponentOnDiagCorners() {
+		function opponentOnDiagCorners () {
 			var oppCounter = getOpponentsCounter();
 			var positions = findCounterPositions( oppCounter );
 			var diagonals = [ [0,8], [2,6] ];
@@ -228,34 +228,34 @@ var BoardGame = (function () {
 				return ( found( oppCounter, element[0]) && found( oppCounter, element[ 1 ] ) ) && true;
 			});
 		}
-		function getDiagonalStrategy() {
+		function getDiagonalStrategy () {
 			// pick any edge
 			var edges = [ 1, 3, 5, 7 ];
 			return edges[ Math.floor(Math.random() * edges.length) ];
 		}
 
-		function getWildPosition() {
+		function getWildPosition () {
 			// if not first play then choose center position if available otherwise random choice out of remainder
 			var unfilledSpaces = getUnfilledSpaces();
   		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ Math.floor(Math.random() * unfilledSpaces.length) ];
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
   		return ( badChoice( position )) ? getNextPosition() : position;  
 		}
-		function diagonalStrategy() {
+		function diagonalStrategy () {
 			// if opponent has marked two opposing diagonal corners and current player is in the center 
 			// then this is a diagonal strategy.
 
 			var unfilledSpaces = getUnfilledSpaces();
 			return ( unfilledSpaces.length === 6 && opponentOnDiagCorners() && found( getCounter(), 4 ) ) && true;
 		}
-	  function getStrategy(){
+	  function getStrategy (){
 	  	
 	  	// if diagonalStrategy() then return diagonalStrategy
 	  	// otherwise generate a center or corner position.
 	  	return ( diagonalStrategy()) ? getDiagonalStrategy : getWildPosition;
 	  }
 
-	  function getNextPosition(){
+	  function getNextPosition (){
 	  	var unfilledSpaces = []; 
 	  	var position, strategy, randomIndex = -1;
 	
@@ -268,9 +268,9 @@ var BoardGame = (function () {
 	  	else {
 		  	// Check if a strategy is needed, otherwise centre or corner position will be chosen.
 		  	strategy = getStrategy();
-		  	position = strategy && strategy();
-		  	return position;	
+		  	position = strategy && strategy();	
 			}
+			return position;
 	  }
 
 	  function generateComputerMove () {
@@ -339,13 +339,13 @@ var BoardGame = (function () {
 		  	newGame();
 		  },
 
-		  getCurrentPlayer(){
+		  getCurrentPlayer: function(){
 		  	return currentPlayer;
 		  },
 
-		  whoIsPlayer : function ( isPlayer1 ) {
+		  whoIsPlayer : function ( isPlayerAComputer ) {
 		  	// return the 'name' of player1 if isPlayer1 is true, else return 'name' of player2.
-		  	return isPlayer1 ? player1Type : player2Type;
+		  	return isPlayerAComputer ? player1Type : player2Type;
 		  },
 		
 		  getCounter : function (isComputer) {
@@ -367,7 +367,7 @@ var BoardGame = (function () {
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 		  //////// playMove fn is used to play a computer move  //////////////////////////////////////////////////
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-		  playMove : function ( position, isComputer ) {
+		  playMove : function ( position ) {
 		  	updateBoard( position, getCounter() );
 		  	switchCurrentPlayer();
 		  	incPlayCount();
@@ -439,7 +439,7 @@ function playComputerMove ( game ) {
 	updateGameBoardUI( game.getCounter(), position );
 
 	// update BoardGame 'cache'
-	return game.playMove( position, true ).checkForGameOver();
+	return game.playMove( position ).checkForGameOver();
 }
 
 $(document).ready (function () {
@@ -524,7 +524,7 @@ $(document).ready (function () {
 			updateGameBoardUI( game.getCounter(), position );
 
 			//update cache
-			if( game.playMove( position, false ).checkForGameOver() ) {
+			if( game.playMove( position ).checkForGameOver() ) {
 				resetGame();
 			}
 			else if( game.gameMode() === "HvC" ){
