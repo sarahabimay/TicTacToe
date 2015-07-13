@@ -50,6 +50,23 @@ Array.prototype.findValue = function (predicate) {
 };
 
 $(function() {
+	var Player = {
+    	COMPUTER : "Computer",
+    	HUMAN : "Human",
+	}
+
+	var GameMode = {
+		HVC : "HvC",
+		CVC : "CvC",
+		HVH : "HvH"
+	}
+
+	var Counter = {
+		X : "X",
+		O : "O"
+	}
+
+	var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 
 	var boardGameModel = {
 		isPlayer1      : false,
@@ -65,7 +82,7 @@ $(function() {
 		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
 
 		init: function ( player1, player2 ){
-			isPlayer1AComputer = ( player1 === "Computer" ) && true;
+			isPlayer1AComputer = ( player1 === Player.COMPUTER) && true;
 			player1Type=player1;
 			player2Type=player2;
 			currentPlayer = "player1"; // start with undefined player
@@ -86,20 +103,20 @@ $(function() {
 		},
 
 		gameMode: function () {
-			if( player1Type === "Human" ) {
-				if( player2Type === "Human") {
-					return "HvH";
+			if( player1Type === Player.HUMAN ) {
+				if( player2Type === Player.HUMAN) {
+					return GameMode.HVH;
 				}
-				else if( player2Type === "Computer" ) {
-					return "HvC";
+				else if( player2Type === Player.COMPUTER ) {
+					return GameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === "Human") {
-					return "HvC";
+				if( player2Type === Player.HUMAN) {
+					return GameMode.HVC;
 				}
-				else if( player2Type === "Computer" ) {
-					return "CvC";
+				else if( player2Type === Player.COMPUTER ) {
+					return GameMode.CVC;
 				}
 			}
 		},
@@ -229,10 +246,18 @@ $(function() {
 			}, this );
 		},
 
-		getDiagonalStrategy: function () {
+		getDiagonalStrategy: function ( that ) {
 			// pick any edge
 			var edges = [ 1, 3, 5, 7 ];
 			return edges[ Math.floor(Math.random() * edges.length) ];
+		},
+
+		getEdgeOppositeCornersStrategy: function ( that ) {
+			var corners = [ 0, 2, 6, 8 ];
+			var edges = [ 1, 3, 5, 7 ];
+			var oppCounter = that.getOpponentsCounter();
+			var counterIndexes = this.findCounterPositions ( oppCounter );
+
 		},
 
 		getWildPosition: function ( that ) {
@@ -250,17 +275,26 @@ $(function() {
 			return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
 		},
 
+		useEdgeAndOppositeCornerStrategy: function() {
+			// Another way of winning if you start on an edge:
+			// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
+			// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
+			// Need to block this.
+
+		}
 	  getStrategy: function (){
-	  	// if diagonalStrategy() then return diagonalStrategy
+	  	// If diagonalStrategy() then return diagonalStrategy
 	  	// otherwise generate a center or corner position.
 	  	return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
 	  },
 
 	  getNextPosition: function (){
+	  	// Get a Computer player's next move.
+	  	// The Computer should win or draw but never lose.
 	  	var unfilledSpaces = this.getUnfilledSpaces(); 
 	  	var position, strategy, randomIndex = -1;
 	
-			// if first play then choose randomly from corner or center positions
+			// If first play then choose randomly from corner or center positions
 	  	if ( unfilledSpaces.length === 9 ) {
 	  		randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
 				position = unfilledSpaces[ randomIndex ];
@@ -290,7 +324,7 @@ $(function() {
 		},
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
-	  //////// playMove fn is used to play a computer move  //////////////////////////////////////////////////
+	  //////// playMove fn is used to update data with new move  /////////////////////////////////////////////
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	  playMove : function ( position ) {
 	  	this.updateBoard( position, this.getCounter() );
@@ -353,7 +387,7 @@ $(function() {
 			});
 
 			$(".field").click (function () {
-				var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
+				// var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 				gameController.newUserMove( romans.indexOf( $(this).attr('id') ) );
 			});
 		},
@@ -388,13 +422,13 @@ $(function() {
 			// This function will place an X or O on the button element with id equivalent to 'position'.
 			// The html game board has id's which are numbered 1 to 9 in roman numerals so array 'romans'
 			// maps roman numerals to numbers.
-			var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 
 			var field = $( "#" + romans[ position ] );
 			$( ".gameboard" ).find( field ).text( counter );
 		}
 	};
 
+	var count = 0;
 	var gameController = {
 	
 
@@ -402,30 +436,49 @@ $(function() {
 			boardGameModel.init();
 			gameView.init();
 		},
+
 		startGame: function ( player1, player2) {
 			var computersNextMove = -1;
 			boardGameModel.init( player1, player2 );
 			gameView.renderNewGame( boardGameModel.playerType( true ), boardGameModel.playerType(false) );
 			if( boardGameModel.isPlayer1Computer() ) {
 				// trigger computer move
-				computersNextMove = boardGameModel.generateComputerMove();
-				if( !this.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+				if( boardGameModel.gameMode() === GameMode.CVC ) {
+					gameController.computerOnlyGame();
+				}
+				else {
+					computersNextMove = boardGameModel.generateComputerMove();
+					setTimeout( function() {
+						if( !gameController.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+					}, 1000 );
+				}
 			}
 			else {
 				gameView.setDisable( false ); 
 			}
 		},
 
+		computerOnlyGame: function () {
+			var computersNextMove = boardGameModel.generateComputerMove();
+			setTimeout( function() {
+				if( !gameController.gameOver( computersNextMove ) ) { 
+					gameController.computerOnlyGame(); 
+				}
+				else {
+					// do nothing just let stack unwind
+				}
+			}, 1000 );
+		},
 		resetGame: function () {
 			boardGameModel.resetGame();
 			gameView.resetGame();
 		},
 
 		gameOver: function ( position ) {
+			console.log( ++count + '. Position: ' + position + '. Player: ' + boardGameModel.getCounter());
 			gameView.updateBoard( boardGameModel.getCounter(), position );
 			if( boardGameModel.playMove( position ).checkForGameOver() ) {
-				gameView.resetGame();
-				boardGameModel.resetGame();
+				gameController.resetGame();
 				return true;
 			}
 			return false;
@@ -438,11 +491,13 @@ $(function() {
 				if( !this.gameOver( position ) ) {
 					// boardGameModel.switchCurrentPlayer();
 					gameMode = boardGameModel.gameMode();
-					if( gameMode === "HvC" || gameMode === "CvC" ){
+					if( gameMode === GameMode.HVC || gameMode === GameMode.CVC ){
 						// trigger computer move
 						gameView.setDisable( true );
 						computersNextMove = boardGameModel.generateComputerMove();
-						if( !this.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+						setTimeout( function() {
+							if( !gameController.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+						}, 1000 );
 					}
 				}
 			}
