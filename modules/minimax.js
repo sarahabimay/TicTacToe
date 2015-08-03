@@ -24,19 +24,19 @@ Array.prototype.filterIndex = function (fun/*, thisArg*/) {
 	return res;
 };
 
-function getInverseUser( playersTurn ) {
+function getInverseUser ( playersTurn ) {
     return playersTurn === "Computer" ? "Human" : "Computer";
 }
 
-function getInverseCounter( counter ) {
+function getInverseCounter ( counter ) {
     return counter === "X" ? "O" : "X";
 }
 
-function pointsWon( playersTurn ) {
+function pointsWon ( playersTurn ) {
     return playersTurn === "Computer" ? 1 : -1;
 }
 
-function getAvailableMoves( currentStateOfBoard ){
+function getAvailableMoves ( currentStateOfBoard ){
     // currentStateOfBoard = [ 0, 1, 2, 3, 4, ..8 ]
     var availableMoves = currentStateOfBoard.filter( function( e, i ) {
         return ( e !== "X" && e !== "O" ) && true;
@@ -67,7 +67,7 @@ function found3InARow ( counter, stateOfBoard ) {
 		}
 	}
 }
-function gameOver( stateOfBoard ) {
+function gameOver ( stateOfBoard ) {
   
 	if( found3InARow( "X", stateOfBoard ) || found3InARow( "O", stateOfBoard ) ) {
 		return true;
@@ -168,92 +168,85 @@ function evaluateLine ( computerCounter, board, pos1, pos2, pos3 ) {
   }
   return score;
 }
-function getFutureScoreOfMove(stateOfBoard, playersTurn, playersCounter) {
-    var stateOfBoardAfterMove = stateOfBoard;
-    if( gameOver( stateOfBoard ) ) {
-        // return 1 if AI wins, 0 if draw, -1 if user wins
-        return evaluate( ( playersTurn === "Computer" ? playersCounter : getInverseCounter( playersCounter ) ), stateOfBoard );
-        // return isWinner( playersCounter, stateOfBoard ) ? pointsWon(playersTurn) :         isWinner( getInverseCounter( playersCounter), stateOfBoard ) ? pointsWon( getInverseUser( playersTurn )) : 0;
+function getFutureScoreOfMove (stateOfBoard, depth, playersTurn, playersCounter) {
+  var stateOfBoardAfterMove = stateOfBoard;
+  var availableMoves = getAvailableMoves( stateOfBoard );
+  var countOfMoves = availableMoves.length;
+  var currentBestScore, currentBestMove;
+  var movesTried = [];
+  if( gameOver( stateOfBoard ) ) {
+      // return 1 if AI wins, 0 if draw, -1 if user wins
+      return evaluate( ( playersTurn === "Computer" ? playersCounter : getInverseCounter( playersCounter ) ), stateOfBoard );
+  }
+  
+  if(playersTurn==="Computer") {
+      currentBestScore= -100000; //this is the worst case for AI
+  }
+  else{
+      currentBestScore= +100000; //this is the worst case for Player
+  }
+  
+  availableMoves.forEach( function( aMove, i ) {
+  	console.log( "Board at Depth: ", depth, " : ", playersCounter );
+    console.log( stateOfBoard );
+   
+    if( aMove === "X" || aMove === "O" || movesTried.indexOf( aMove ) >=0 ){
+        // if( stateOfBoard[i] === "X" || stateOfBoard[i] === "O") {
+        // these aren't legal as they are already taken so skip
+        return false;
+     }
+    // record when we have tried a move so we don't try it again later
+    movesTried.push( aMove );
+    stateOfBoardAfterMove[ aMove ] = playersCounter;
+    console.log( "Board after move: ", playersCounter );
+    console.log( stateOfBoardAfterMove );
+    score=getFutureScoreOfMove(stateOfBoardAfterMove , depth+1, getInverseUser( playersTurn ), getInverseCounter(playersCounter) );
+    if(playersTurn === "Computer" && score>currentBestScore) { //AI wants positive score
+        currentBestScore=score;
+        currentBestMove = aMove;
     }
-    
-    if(playersTurn==="Computer") {
-        currentBestScore= -100000; //this is the worst case for AI
+    if( playersTurn === "Human" && score<currentBestScore) { //user wants          negative score
+        currentBestScore=score;
+        currentBestMove = aMove;
     }
-    else{
-        currentBestScore= +100000; //this is the worst case for Player
-    }
-    
-    var availableMoves = getAvailableMoves( stateOfBoard );
-    var countOfMoves = availableMoves.length;
-    var movesTried = [];
-    // console.log( "availableMoves for player: ", playersTurn );
-    // console.log( availableMoves );
-    availableMoves.forEach( function( aMove, i ) {
-        console.log( "Next Move for Counter: ", playersCounter, " is: ", aMove );
-        if( aMove === "X" || aMove === "O" || movesTried.indexOf( aMove ) >=0 ){
-            // if( stateOfBoard[i] === "X" || stateOfBoard[i] === "O") {
-            // these aren't legal as they are already taken so skip
-            return false;
-         }
-        // record when we have tried a move so we don't try it again later
-        movesTried.push( aMove );
-        stateOfBoardAfterMove[ aMove ] = playersCounter;
-        // console.log( "Board after move: ", playersCounter );
-        // console.log( stateOfBoardAfterMove );
-        score=getFutureScoreOfMove(stateOfBoardAfterMove , getInverseUser( playersTurn ), getInverseCounter(playersCounter) );
-        // console.log( "Score: ", score );
-        // console.log( "playersTurn: ", playersTurn );
-        // console.log( "lastMove: ", aMove );
-        // console.log( "AvailableMoves for player: ", playersTurn, " ", availableMoves );
-        if(playersTurn === "Computer" && score>currentBestScore) { //AI wants positive score
-            currentBestScore=score;
-        }
-        if( playersTurn === "Human" && score<currentBestScore) { //user wants          negative score
-            currentBestScore=score;
-        }
-        // remove counter from stateOfBoardAFterMove as we will try a different move if there are any available
-        stateOfBoardAfterMove[aMove] = aMove;
-        // if there are available moves left then choose one of those and reverse the last move
-        // if there aren't any
-        console.log( "Current Best Score: ", currentBestScore );
-    });
-    
-    console.log( "CurrentBestScore: ", currentBestScore );
-    console.log( "************************************************");
-    return currentBestScore;
+    // remove counter from stateOfBoardAFterMove as we will try a different move if there are any available
+    stateOfBoardAfterMove[aMove] = aMove;
+  });
+  
+  console.log( "Best Score at Depth: ", depth, " ; CurrentBestMove: ", currentBestMove, "; CurrentBestScore: ", currentBestScore );
+  console.log( "************************************************");
+  return currentBestScore;
 }
 
-module.exports = function /*determineNextMove*/  (currentStateOfBoard, computerPlayer, computerCounter ) {
-    var currentBestMove= null;
-    var score = null;
-    var currentBestScore= -100000;
-    var stateOfBoardAfterMove = currentStateOfBoard;
-    var availableMoves = getAvailableMoves( currentStateOfBoard );
-    // console.log( "availableMoves: " );
-    // console.log( availableMoves );
-    availableMoves.forEach( function( aMove, i ) {
+module.exports = function (currentStateOfBoard, computerPlayer, computerCounter ) {
+  var currentBestMove= null;
+  var score = null;
+  var currentBestScore= -100000;
+  var stateOfBoardAfterMove = currentStateOfBoard;
+  var availableMoves = getAvailableMoves( currentStateOfBoard );
+  availableMoves.forEach( function( aMove, i ) {
 
-        if( availableMoves[i] === "X" || availableMoves[i] === "O")         {
-            // these aren't legal as they are already taken so skip
-            return false;
-        }
-        console.log( "NEXT OPENING MOVE FOR COMPUTER: ", aMove );
-        stateOfBoardAfterMove[ aMove ] = computerCounter;
-        // console.log( "Board after move: ", computerPlayer );
-        // console.log( stateOfBoardAfterMove );
-        score=getFutureScoreOfMove(stateOfBoardAfterMove , "Human", getInverseCounter( computerCounter ));
-        console.log( "Score in determineNextMove: ", score );
-        console.log( "lastMove: ", aMove );
-        console.log( "currentBestScore: ", currentBestScore );
-        if( score>currentBestScore) {
-            // console.log
-            currentBestMove=aMove;
-            currentBestScore=score;
-        }
-        stateOfBoardAfterMove[aMove] = aMove;
-    });
-    console.log( "OVERALL NEXT BEST MOVE FOR THE COMPUTER: ", currentBestMove );
-    return currentBestMove;
+    if( availableMoves[i] === "X" || availableMoves[i] === "O")         {
+        // these aren't legal as they are already taken so skip
+        return false;
+    }
+    console.log( "NEXT OPENING MOVE FOR COMPUTER: ", aMove );
+    stateOfBoardAfterMove[ aMove ] = computerCounter;
+    // console.log( "Board after move: ", computerPlayer );
+    // console.log( stateOfBoardAfterMove );
+    score=getFutureScoreOfMove(stateOfBoardAfterMove , 1/*depth*/,"Human", getInverseCounter( computerCounter ));
+    
+    if( score>=currentBestScore) {
+      console.log( "Current Best Score at Depth: 0 : ", score );
+      console.log( "lastMove: ", aMove );
+      console.log( "currentBestScore: ", currentBestScore );
+      currentBestMove=aMove;
+      currentBestScore=score;
+    }
+    stateOfBoardAfterMove[aMove] = aMove;
+  });
+  console.log( "OVERALL NEXT BEST MOVE FOR THE COMPUTER: ", currentBestMove );
+  return currentBestMove;
 };
 
 

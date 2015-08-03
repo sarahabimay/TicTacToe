@@ -1,0 +1,25 @@
+{
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "description": "Tic Tac Toe game using Minimax Algorithm",
+  "main": "bundle.js",
+  "dependencies": {
+    "bootstrap": "^3.3.5",
+    "browserify": "^11.0.1",
+    "watchify": "^3.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarahabimay/TicTacToe.git"
+  },
+  "author": "sarah johnston",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sarahabimay/TicTacToe/issues"
+  },
+  "homepage": "https://github.com/sarahabimay/TicTacToe#readme"
+}

@@ -1,4 +1,4 @@
-var tttAlgo = require( "./modules/ttt-algorithm.js" );
+var minimax = require( "./modules/minimax.js" );
 // adapt JS Array filter method to return the index instead of the value
 Array.prototype.filterIndex = function (fun/*, thisArg*/) {
   'use strict';
@@ -238,11 +238,12 @@ $(function() {
 		},
 
 		getWildPosition: function ( that ) {
-			// if not first play then choose center position if available otherwise random choice out of remainder
+			// if not first play then choose center position if available otherwise use minimax algo
 			var unfilledSpaces = that.getUnfilledSpaces();
-  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ Math.floor(Math.random() * unfilledSpaces.length) ];
+  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, "Computer", that.getCounter() );
+			return position;
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-  		return ( that.badChoice( position )) ? that.getNextPosition() : position;  
+  		// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
 		},
 
 		usesDiagonalStrategy: function () {
@@ -268,12 +269,9 @@ $(function() {
 				position = unfilledSpaces[ randomIndex ];
 	  	}
 	  	else {
-	  		// use algorithm to determine next best move based on current state of the board
-	  		position = tttAlgo( board, "Computer", this.getCounter() );
-	  		console.log( "NEXT POSITION USING ALGORITHM: ", position );
 		  	// Check if a strategy is needed, otherwise centre or corner position will be chosen.
-		  	// strategy = this.getStrategy();
-		  	// position = strategy && strategy( this );
+		  	strategy = this.getStrategy();
+		  	position = strategy && strategy( this );
 			}
 			return position;	
 	  },
