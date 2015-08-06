@@ -1,75 +1,79 @@
+var minimax = require( "./modules/minimax.js" );
 // adapt JS Array filter method to return the index instead of the value
 Array.prototype.filterIndex = function (fun/*, thisArg*/) {
-  'use strict';
+	'use strict';
 
-  if (this === void 0 || this === null) {
-    throw new TypeError();
-  }
+	if (this === void 0 || this === null) {
+		throw new TypeError();
+	}
 
-  var t = Object(this);
-  var len = t.length >>> 0;
-  if (typeof fun !== 'function') {
-    throw new TypeError();
-  }
+	var t = Object(this);
+	var len = t.length >>> 0;
+	if (typeof fun !== 'function') {
+		throw new TypeError();
+	}
 
-  var res = [];
-  var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-  for (var i = 0; i < len; i++) {
-    if (i in t) {
-      var val = t[i];
-      if (fun.call(thisArg, val, i, t)) {
-        res.push(i);
-      }
-  	}
+	var res = [];
+	var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+	for (var i = 0; i < len; i++) {
+		if (i in t) {
+			var val = t[i];
+			if (fun.call(thisArg, val, i, t)) {
+				res.push(i);
+			}
+		}
 	}
 	return res;
 };
 
 // adapt ES6 Array find method such that it just return the first found value 
 Array.prototype.findValue = function (predicate) {
-  if (this === null) {
-    throw new TypeError('Array.prototype.findValue called on null or undefined');
-  }
-  if (typeof predicate !== 'function') {
-    throw new TypeError('predicate must be a function');
-  }
-  var list = Object(this);
-  var length = list.length >>> 0;
-  var thisArg = arguments[1];
-  var value;
-  var result;
+	if (this === null) {
+		throw new TypeError('Array.prototype.findValue called on null or undefined');
+	}
+	if (typeof predicate !== 'function') {
+		throw new TypeError('predicate must be a function');
+	}
+	var list = Object(this);
+	var length = list.length >>> 0;
+	var thisArg = arguments[1];
+	var value;
+	var result;
 
-  for (var i = 0; i < length; i++) {
-    value = list[i];
-    result = predicate.call(thisArg, value, i, list);
-    if ( result !== undefined ) {
-      return result;
-    }
-  }
-  return undefined;
+	for (var i = 0; i < length; i++) {
+		value = list[i];
+		result = predicate.call(thisArg, value, i, list);
+		if ( result !== undefined ) {
+			return result;
+		}
+	}
+	return undefined;
 };
 
 $(function() {
-	var Player = {
-    	COMPUTER : "Computer",
-    	HUMAN : "Human",
-	}
-
-	var GameMode = {
-		HVC : "HvC",
-		CVC : "CvC",
-		HVH : "HvH"
-	}
 
 	var Counter = {
 		X : "X",
 		O : "O"
-	}
+	};
 
 	var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 
+	var gameMode = {
+		HVC : "HvC",
+		HVH : "HvH",
+		CVC : "CvC"
+	};
+	var playerType = {
+		COMPUTER : "Computer",
+		HUMAN : "Human",
+	};
+	// The computer player MODEL in the MVC
+	var computerPlayerModel = {
+		
+	};
+	// The board MODEL in the MVC
 	var boardGameModel = {
-		isPlayer1      : false,
 		player1Type    : "",
 		player2Type    : "",
 		currentPlayer  : "player1", // start with player1
@@ -78,51 +82,51 @@ $(function() {
 		// the 'winningPositions' array represents all of the ways to win based on your starting position
 		// =>e.g. [0] starting position has 3 possible ways to win: (0,1,2), (0,4,8), (0,3,6),
 		// =>e.g. [1] starting positon has 2 possible ways to win: (1,4, 7), (1,0,2), etc..
-		winningPositions : [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
-		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
+		winningPositions : [[[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], 
+												[[3,5],[1,7],[0,8],[2,6]], [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
+
+		winningPositions2 : [ [0,1,2],[0,4,8],[0, 3,6], [1,0,2],[1,4,7], 
+													[2,1,0],[2,5,8],[2,4,6], [3,0,6],[3,4,5], [4,3,5],[4,1,7],[4,0,8],[4,2,6],
+													[5,2,8],[5,3,4], [6,0,3],[6,2,4],[6,7,8], [7,6,8],[7,1,4], [8,6,7],[8,2,5],[8,0,4]],		             
 
 		init: function ( player1, player2 ){
-			isPlayer1AComputer = ( player1 === Player.COMPUTER) && true;
-			player1Type=player1;
-			player2Type=player2;
+			player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+			player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
 			currentPlayer = "player1"; // start with undefined player
 			playCount = 0;
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
-			winningPositions = [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
-		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
 
 		},
 
 		isPlayer1Computer: function () {
-			return isPlayer1AComputer;
+			return player1Type === playerType.COMPUTER;
 		},
 
-		playerType: function ( isPlayer1AComputer ){
-			// return the 'name' of player1 if isPlayer1 is true, else return 'name' of player2.
-	  	return isPlayer1AComputer ? player1Type : player2Type;
+		isValidPlayerType: function ( playerType ){
+			return (playerType === playerType.COMPUTER || playerType === playerType.HUMAN );
 		},
 
 		gameMode: function () {
-			if( player1Type === Player.HUMAN ) {
-				if( player2Type === Player.HUMAN) {
-					return GameMode.HVH;
+			if( player1Type === playerType.HUMAN ) {
+				if( player2Type === playerType.HUMAN) {
+					return gameMode.HVH;
 				}
-				else if( player2Type === Player.COMPUTER ) {
-					return GameMode.HVC;
+				else if( player2Type === playerType.COMPUTER ) {
+					return gameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === Player.HUMAN) {
-					return GameMode.HVC;
+				if( player2Type === playerType.HUMAN) {
+					return gameMode.HVC;
 				}
-				else if( player2Type === Player.COMPUTER ) {
-					return GameMode.CVC;
+				else if( player2Type === playerType.COMPUTER ) {
+					return gameMode.CVC;
 				}
 			}
 		},
 		resetGame: function() {
 			// reset private variables when a new game begins
-			isPlayer1 = false;
+			isPlayer1AComputer = false;
 			player1Type = "";
 			player2Type = "";
 			currentPlayer = "player1";
@@ -130,9 +134,9 @@ $(function() {
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		},
 
-    isPositionEmpty: function ( position ) {
-    	return ( board[ position ] === "X" || board[ position ] === "O" ) ? false : true;
-    },
+		isPositionEmpty: function ( position ) {
+			return ( board[ position ] === "X" || board[ position ] === "O" ) ? false : true;
+		},
 
 		updateBoard: function ( position, counter ) {
 			board[ position ] = counter;
@@ -143,7 +147,7 @@ $(function() {
 		},
 
 		getOpponentsCounter: function () {
-		  	return this.getCounter() === "X" ? "O" : "X";
+				return this.getCounter() === "X" ? "O" : "X";
 		},
 
 		findCounterPositions: function ( counter ) {
@@ -164,8 +168,8 @@ $(function() {
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		//////// functions used by 'generateComputerMove'  ///////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////////////
-    
-  	getUnfilledSpaces: function () {
+		
+		getUnfilledSpaces: function () {
 			var fieldsWithoutXorO = board.filter( function( value, index) {
 				return ( value === "X" || value === "O" ) ? false : true;
 			});
@@ -173,13 +177,22 @@ $(function() {
 		},
 
 		needToCheckForUserWin: function ( counter ) {
-	    	// This checks whether the user has played at least 2 moves and returns if they have.
-	    	// The number of plays made is different depending on whether the User or the Computer went first.
-		  	var userPlayCount = this.findCounterPositions( counter ).length;
-		  	if ( userPlayCount < 2) return false;
-		  	return true;
+				// This checks whether the user has played at least 2 moves and returns if they have.
+				// The number of plays made is different depending on whether the User or the Computer went first.
+				var userPlayCount = this.findCounterPositions( counter ).length;
+				if ( userPlayCount < 2) return false;
+				return true;
 		},
 
+		findPossibleWin : function( counterPositions ) {
+			return winningPositions2.filter( function( value, index ) {
+				var count = 0;
+				for( i=0; i<value.length; i++ ){
+					count = counterPositions.indexOf( value[ i ] ) >=0 ? count++ : count;
+				}
+				return ( count >=2 );
+			});
+		},
 		findWinningPosition: function ( counter ) {
 			// Search for any possible winning scenarios for 'counter'.
 			// Return the position that could block that win.
@@ -188,32 +201,33 @@ $(function() {
 			// find all of the index positions of the 'counter' element value 
 			var counterIndexes = this.findCounterPositions ( counter );
 
-			if( counterIndexes ){
-				return counterIndexes.findValue( function ( element ) {
-					possibleWins = this.winningPositions[element];
-						return  possibleWins.findValue( function ( e ) {
-							if( counterIndexes.indexOf( e[0]) >= 0 && this.isPositionEmpty( e[1] ) ){
-								return e[1]; 
-							}
-							else if( counterIndexes.indexOf( e[1]) >= 0 && this.isPositionEmpty( e[0] ) ) {
-								return e[0];
-							}
-							else return undefined;
-						}, this );
-				}, this );
+			if( counterIndexes.length <= 0 ){
+				return position;
 			}
-			return position;
+			// return foundPossibleWin( counterIndexes );
+			return counterIndexes.findValue( function ( element ) {
+				possibleWins = this.winningPositions[element];
+					return  possibleWins.findValue( function ( e ) {
+						if( counterIndexes.indexOf( e[0]) >= 0 && this.isPositionEmpty( e[1] ) ){
+						return e[1]; 
+					}
+					else if( counterIndexes.indexOf( e[1]) >= 0 && this.isPositionEmpty( e[0] ) ) {
+						return e[0];
+					}
+					else return undefined;
+				}, this );
+			}, this );
 		},
 		
-	  blockUserPosition: function () {
-	  	if ( !this.needToCheckForUserWin( this.getOpponentsCounter() ) ) return -1;
-	  	return this.findWinningPosition( this.getOpponentsCounter() );
-	  },
+		blockUserPosition: function () {
+			if ( !this.needToCheckForUserWin( this.getOpponentsCounter() ) ) return -1;
+			return this.findWinningPosition( this.getOpponentsCounter() );
+		},
 
-	  computerWinPosition: function () {
-	  	if( !this.needToCheckForUserWin( this.getCounter() ) ) return -1;
-	  	return this.findWinningPosition( this.getCounter() );
-	  },
+		computerWinPosition: function () {
+			if( !this.needToCheckForUserWin( this.getCounter() ) ) return -1;
+			return this.findWinningPosition( this.getCounter() );
+		},
 
 		badChoice: function ( position ) {
 			// We want the computer to always win or draw so we should only use center or edge positions unless there
@@ -261,11 +275,12 @@ $(function() {
 		},
 
 		getWildPosition: function ( that ) {
-			// if not first play then choose center position if available otherwise random choice out of remainder
+			// if not first play then choose center position if available otherwise use minimax algo
 			var unfilledSpaces = that.getUnfilledSpaces();
-  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : unfilledSpaces[ Math.floor(Math.random() * unfilledSpaces.length) ];
+			var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
+			return position;
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-  		return ( that.badChoice( position )) ? that.getNextPosition() : position;  
+			// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
 		},
 
 		usesDiagonalStrategy: function () {
@@ -281,34 +296,34 @@ $(function() {
 			// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
 			// Need to block this.
 
-		}
-	  getStrategy: function (){
-	  	// If diagonalStrategy() then return diagonalStrategy
-	  	// otherwise generate a center or corner position.
-	  	return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
-	  },
+		},
+		getStrategy: function (){
+			// If diagonalStrategy() then return diagonalStrategy
+			// otherwise generate a center or corner position.
+			return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
+		},
 
-	  getNextPosition: function (){
-	  	// Get a Computer player's next move.
-	  	// The Computer should win or draw but never lose.
-	  	var unfilledSpaces = this.getUnfilledSpaces(); 
-	  	var position, strategy, randomIndex = -1;
+		getNextPosition: function (){
+			// Get a Computer player's next move.
+			// The Computer should win or draw but never lose.
+			var unfilledSpaces = this.getUnfilledSpaces(); 
+			var position, strategy, randomIndex = -1;
 	
 			// If first play then choose randomly from corner or center positions
-	  	if ( unfilledSpaces.length === 9 ) {
-	  		randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
+			if ( unfilledSpaces.length === 9 ) {
+				randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
 				position = unfilledSpaces[ randomIndex ];
-	  	}
-	  	else {
-		  	// Check if a strategy is needed, otherwise centre or corner position will be chosen.
-		  	strategy = this.getStrategy();
-		  	position = strategy && strategy( this );
+			}
+			else {
+				// Check if a strategy is needed, otherwise centre or corner position will be chosen.
+				strategy = this.getStrategy();
+				position = strategy && strategy( this );
 			}
 			return position;	
-	  },
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		},
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////// generateComputerMove is used to generate a new computer move ////////////////////
-	  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		generateComputerMove : function () {
 			// First, check if there is a potential win for the computer.  If so then this is the next position.
 			// Finally, randomly select any remaining corner position or if there are none then select any of the 
@@ -324,18 +339,18 @@ $(function() {
 		},
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
-	  //////// playMove fn is used to update data with new move  /////////////////////////////////////////////
-	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-	  playMove : function ( position ) {
-	  	this.updateBoard( position, this.getCounter() );
-	  	this.switchCurrentPlayer();
-	  	this.incPlayCount();
-	  	return this;
-	  },
+		//////// playMove fn is used to update data with new move  /////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////////
+		playMove : function ( position ) {
+			this.updateBoard( position, this.getCounter() );
+			this.switchCurrentPlayer();
+			this.incPlayCount();
+			return this;
+		},
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-	  ///////// functions used by 'checkForGameOver'  ////////////////////////////////////////////////////
-	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////// functions used by 'checkForGameOver'  ////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		found3InARow: function ( counter ) {
 			// this could be improved to use the 'winningPositions' array
 			var positions;
@@ -351,11 +366,11 @@ $(function() {
 			}
 		},
 
-	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-	  //////// checkForGameOver - checks if either player has won or if there is a draw //////////////////////
-	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-		checkForGameOver : function () {
-	  	if( playCount < 3) {
+		////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////// checkForGameOver - checks if either player has won or if there is a draw //////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////////
+		isGameOver : function () {
+			if( playCount < 3) {
 				return false;
 			}
 			if( this.found3InARow( "X" ) || this.found3InARow( "O" ) ) {
@@ -368,7 +383,7 @@ $(function() {
 			else {
 				return false;
 			}
-	  }			 
+		}			 
 	};
 
 	var gameView = {
@@ -387,7 +402,6 @@ $(function() {
 			});
 
 			$(".field").click (function () {
-				// var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 				gameController.newUserMove( romans.indexOf( $(this).attr('id') ) );
 			});
 		},
@@ -401,7 +415,7 @@ $(function() {
 
 		resetGame: function () {
 			var p1Text, p2Text, fields;
-			this.setDisable( true );
+			this.disableBoard();
 			fields = $( ".field" );
 			$( ".gameboard" ).find( fields ).text( "-" );
 			p1Text = "Player1: ";
@@ -413,6 +427,13 @@ $(function() {
 			count = 0;
 		},
 
+		enableBoard : function () {
+			this.setDisable( false );
+		},
+
+		disableBoard : function () {
+			this.setDisable( true );
+		},
 		setDisable: function ( toggle ) {
 			var fields = $( ".field" );
 			$( ".gameboard" ).find( fields ).prop( 'disabled', toggle );
@@ -440,69 +461,76 @@ $(function() {
 		startGame: function ( player1, player2) {
 			var computersNextMove = -1;
 			boardGameModel.init( player1, player2 );
-			gameView.renderNewGame( boardGameModel.playerType( true ), boardGameModel.playerType(false) );
+			// player1 and player2 model: ??
+
+			gameView.renderNewGame( player1, player2 );
+			// if( player1Model.isComputer() ) ...
 			if( boardGameModel.isPlayer1Computer() ) {
-				// trigger computer move
-				if( boardGameModel.gameMode() === GameMode.CVC ) {
-					gameController.computerOnlyGame();
-				}
-				else {
-					computersNextMove = boardGameModel.generateComputerMove();
-					setTimeout( function() {
-						if( !gameController.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
-					}, 1000 );
-				}
+				this.computerGameMode();
 			}
 			else {
-				gameView.setDisable( false ); 
+				gameView.enableBoard();
 			}
 		},
 
-		computerOnlyGame: function () {
-			var computersNextMove = boardGameModel.generateComputerMove();
-			setTimeout( function() {
-				if( !gameController.gameOver( computersNextMove ) ) { 
-					gameController.computerOnlyGame(); 
-				}
-				else {
-					// do nothing just let stack unwind
-				}
-			}, 1000 );
-		},
+		// computerOnlyGame: function () {
+		// 	var computersNextMove = boardGameModel.generateComputerMove();
+		// 	setTimeout( function() {
+		// 		if( !gameController.gameOver( computersNextMove ) ) { 
+		// 			gameController.computerOnlyGame(); 
+		// 		}
+		// 		else {
+		// 			// do nothing just let stack unwind
+		// 		}
+		// 	}, 1000 );
+		// },
 		resetGame: function () {
 			boardGameModel.resetGame();
 			gameView.resetGame();
 		},
 
-		gameOver: function ( position ) {
-			console.log( ++count + '. Position: ' + position + '. Player: ' + boardGameModel.getCounter());
-			gameView.updateBoard( boardGameModel.getCounter(), position );
-			if( boardGameModel.playMove( position ).checkForGameOver() ) {
-				gameController.resetGame();
-				return true;
-			}
-			return false;
+		playMove : function ( position ) {
+			gameView.updateBoard( /*player1Model.getCounter()*/boardGameModel.getCounter(), position );
+			return boardGameModel.playMove( position );
 		},
 
-		newUserMove: function ( position ) {
-			var computersNextMove = -1;
+		computerGameMode : function () {
+			if( this.computerMove().isGameOver() ) {
+				this.gameOver();
+			}
+			else if( boardGameModel.gameMode() === gameMode.CVC ){
+				this.computerGameMode();
+			}
+			else {
+				gameView.enableBoard();
+			}
+		},
+		computerMove : function (/*player1Model*/) {
+			// generate computer move and update view with it:
+			var computerMove = boardGameModel.generateComputerMove();
+			return this.playMove( computerMove );	
+		},
 
+		gameOver : function () {
+			gameView.resetGame();
+			boardGameModel.resetGame();
+		},
+
+		newUserMove : function ( position ) {
+			var computersNextMove = -1;
+			var mode, result;
 			if( boardGameModel.isPositionEmpty( position ) ) {
-				if( !this.gameOver( position ) ) {
-					// boardGameModel.switchCurrentPlayer();
-					gameMode = boardGameModel.gameMode();
-					if( gameMode === GameMode.HVC || gameMode === GameMode.CVC ){
-						// trigger computer move
-						gameView.setDisable( true );
-						computersNextMove = boardGameModel.generateComputerMove();
-						setTimeout( function() {
-							if( !gameController.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
-						}, 1000 );
-					}
+				if( this.playMove( position ).isGameOver() ) {
+					this.gameOver();
+				}
+				else if( boardGameModel.gameMode() === gameMode.HVC ){
+					// trigger computer move
+					gameView.disableBoard();
+					this.computerMove().isGameOver() ? this.gameOver() : gameView.enableBoard(); 
 				}
 			}
 		}
-
 	};
+
 	gameController.init();
 });
