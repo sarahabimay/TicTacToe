@@ -306,10 +306,21 @@ Array.prototype.findValue = function (predicate) {
 };
 
 $(function() {
-
-	// The MODEL in the MVC
+	var gameMode = {
+		HVC : "HvC",
+		HVH : "HvH",
+		CVC : "CvC"
+	};
+	var playerType = {
+		COMPUTER : "Computer",
+		HUMAN : "Human",
+	};
+	// The computer player MODEL in the MVC
+	var computerPlayerModel = {
+		
+	};
+	// The board MODEL in the MVC
 	var boardGameModel = {
-		isPlayer1      : false,
 		player1Type    : "",
 		player2Type    : "",
 		currentPlayer  : "player1", // start with player1
@@ -318,51 +329,53 @@ $(function() {
 		// the 'winningPositions' array represents all of the ways to win based on your starting position
 		// =>e.g. [0] starting position has 3 possible ways to win: (0,1,2), (0,4,8), (0,3,6),
 		// =>e.g. [1] starting positon has 2 possible ways to win: (1,4, 7), (1,0,2), etc..
-		winningPositions : [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
-		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
+		winningPositions : [[[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], 
+												[[3,5],[1,7],[0,8],[2,6]], [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
+
+		winningPositions2 : [ [0,1,2],[0,4,8],[0, 3,6], [1,0,2],[1,4,7], 
+													[2,1,0],[2,5,8],[2,4,6], [3,0,6],[3,4,5], [4,3,5],[4,1,7],[4,0,8],[4,2,6],
+		             					[5,2,8],[5,3,4], [6,0,3],[6,2,4],[6,7,8], [7,6,8],[7,1,4], [8,6,7],[8,2,5],[8,0,4]],		             
 
 		init: function ( player1, player2 ){
-			isPlayer1AComputer = ( player1 === "Computer" ) && true;
-			player1Type=player1;
-			player2Type=player2;
+			player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+			player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
 			currentPlayer = "player1"; // start with undefined player
 			playCount = 0;
 			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
-			winningPositions = [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
-		             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
+			// winningPositions = [ [[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], [[3,5],[1,7],[0,8],[2,6]],
+		 //             [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]];
 
 		},
 
 		isPlayer1Computer: function () {
-			return isPlayer1AComputer;
+			return player1Type === playerType.COMPUTER;
 		},
 
-		playerType: function ( isPlayer1AComputer ){
-			// return the 'name' of player1 if isPlayer1 is true, else return 'name' of player2.
-	  	return isPlayer1AComputer ? player1Type : player2Type;
+		isValidPlayerType: function ( playerType ){
+	  	return (playerType === playerType.COMPUTER || playerType === playerType.HUMAN );
 		},
 
 		gameMode: function () {
-			if( player1Type === "Human" ) {
-				if( player2Type === "Human") {
-					return "HvH";
+			if( player1Type === playerType.HUMAN ) {
+				if( player2Type === playerType.HUMAN) {
+					return gameMode.HVH;
 				}
-				else if( player2Type === "Computer" ) {
-					return "HvC";
+				else if( player2Type === playerType.COMPUTER ) {
+					return gameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === "Human") {
-					return "HvC";
+				if( player2Type === playerType.HUMAN) {
+					return gameMode.HVC;
 				}
-				else if( player2Type === "Computer" ) {
-					return "CvC";
+				else if( player2Type === playerType.COMPUTER ) {
+					return gameMode.CVC;
 				}
 			}
 		},
 		resetGame: function() {
 			// reset private variables when a new game begins
-			isPlayer1 = false;
+			isPlayer1AComputer = false;
 			player1Type = "";
 			player2Type = "";
 			currentPlayer = "player1";
@@ -495,7 +508,7 @@ $(function() {
 		getWildPosition: function ( that ) {
 			// if not first play then choose center position if available otherwise use minimax algo
 			var unfilledSpaces = that.getUnfilledSpaces();
-  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, "Computer", that.getCounter() );
+  		var position = unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
 			return position;
 			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
   		// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
@@ -578,7 +591,7 @@ $(function() {
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	  //////// checkForGameOver - checks if either player has won or if there is a draw //////////////////////
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////////
-		checkForGameOver : function () {
+		isGameOver : function () {
 	  	if( playCount < 3) {
 				return false;
 			}
@@ -625,7 +638,7 @@ $(function() {
 
 		resetGame: function () {
 			var p1Text, p2Text, fields;
-			this.setDisable( true );
+			this.disableBoard();
 			fields = $( ".field" );
 			$( ".gameboard" ).find( fields ).text( "-" );
 			p1Text = "Player1: ";
@@ -637,6 +650,13 @@ $(function() {
 			count = 0;
 		},
 
+		enableBoard : function () {
+			this.setDisable( false );
+		},
+
+		disableBoard : function () {
+			this.setDisable( true );
+		},
 		setDisable: function ( toggle ) {
 			var fields = $( ".field" );
 			$( ".gameboard" ).find( fields ).prop( 'disabled', toggle );
@@ -663,14 +683,15 @@ $(function() {
 		startGame: function ( player1, player2) {
 			var computersNextMove = -1;
 			boardGameModel.init( player1, player2 );
-			gameView.renderNewGame( boardGameModel.playerType( true ), boardGameModel.playerType(false) );
+			// player1 and player2 model: ??
+
+			gameView.renderNewGame( player1, player2 );
+			// if( player1Model.isComputer() ) ...
 			if( boardGameModel.isPlayer1Computer() ) {
-				// trigger computer move
-				computersNextMove = boardGameModel.generateComputerMove();
-				if( !this.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+				this.computerGameMode();
 			}
 			else {
-				gameView.setDisable( false ); 
+				gameView.enableBoard();
 			}
 		},
 
@@ -679,34 +700,53 @@ $(function() {
 			gameView.resetGame();
 		},
 
-		gameOver: function ( position ) {
-			gameView.updateBoard( boardGameModel.getCounter(), position );
-			if( boardGameModel.playMove( position ).checkForGameOver() ) {
-				gameView.resetGame();
-				boardGameModel.resetGame();
-				return true;
-			}
-			return false;
+		playMove : function ( position ) {
+			gameView.updateBoard( /*player1Model.getCounter()*/boardGameModel.getCounter(), position );
+			return boardGameModel.playMove( position );
 		},
 
-		newUserMove: function ( position ) {
-			var computersNextMove = -1;
+		computerGameMode : function () {
+			if( this.computerMove().isGameOver() ) {
+				this.gameOver();
+			}
+			else if( boardGameModel.gameMode() === gameMode.CVC ){
+				this.computerGameMode();
+			}
+			else {
+				gameView.enableBoard();
+			}
+		},
+		computerMove : function (/*player1Model*/) {
+			// generate computer move and update view with it:
+			var computerMove = boardGameModel.generateComputerMove();
+			return this.playMove( computerMove );	
+		},
 
+		gameOver : function () {
+			gameView.resetGame();
+			boardGameModel.resetGame();
+		},
+
+		newUserMove : function ( position ) {
+			var computersNextMove = -1;
+			var mode, result;
 			if( boardGameModel.isPositionEmpty( position ) ) {
-				if( !this.gameOver( position ) ) {
-					// boardGameModel.switchCurrentPlayer();
-					gameMode = boardGameModel.gameMode();
-					if( gameMode === "HvC" || gameMode === "CvC" ){
+				if( this.playMove( position ).isGameOver() ) {
+					this.gameOver();
+				}
+				else{
+					mode = boardGameModel.gameMode();
+					if( mode === gameMode.HVC ){
 						// trigger computer move
-						gameView.setDisable( true );
-						computersNextMove = boardGameModel.generateComputerMove();
-						if( !this.gameOver( computersNextMove ) ) { gameView.setDisable( false ); }
+						gameView.disableBoard();
+						this.computerMove().isGameOver() ? this.gameOver() : gameView.enableBoard(); 
 					}
 				}
+
 			}
 		}
-
 	};
+
 	gameController.init();
 });
 
