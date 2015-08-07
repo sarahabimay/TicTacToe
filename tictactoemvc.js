@@ -92,13 +92,8 @@ $(function() {
 		currentPlayer  : player.PLAYER1, // start with player1
 		playCount      : 0,
 		board : [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
-		// the 'winningPositions' array represents all of the ways to win based on your starting position
-		// =>e.g. [0] starting position has 3 possible ways to win: (0,1,2), (0,4,8), (0,3,6),
-		// =>e.g. [1] starting positon has 2 possible ways to win: (1,4, 7), (1,0,2), etc..
-		winningPositions : [[[1,2],[4,8],[3,6]], [[0,2],[4,7]], [[1,0],[5,8],[4,6]], [[0,6],[4,5]], 
-												[[3,5],[1,7],[0,8],[2,6]], [[2,8],[3,4]], [[0,3],[2,4],[7,8]], [[6,8],[1,4]], [[6,7],[2,5],[0,4]]],
 
-		winningPositions2 : [ [0,1,2],[0,4,8],[0, 3,6], [1,0,2],[1,4,7], 
+		winningPositions : [ [0,1,2],[0,4,8],[0, 3,6], [1,0,2],[1,4,7], 
 													[2,1,0],[2,5,8],[2,4,6], [3,0,6],[3,4,5], [4,3,5],[4,1,7],[4,0,8],[4,2,6],
 													[5,2,8],[5,3,4], [6,0,3],[6,2,4],[6,7,8], [7,6,8],[7,1,4], [8,6,7],[8,2,5],[8,0,4]],		             
 
@@ -138,7 +133,6 @@ $(function() {
 			}
 		},
 		resetGame: function() {
-			// reset private variables when a new game begins
 			player1Type = "";
 			player2Type = "";
 			currentPlayer = player.PLAYER1;
@@ -189,7 +183,7 @@ $(function() {
 		},
 
 		findPossibleWin : function( playerPositions ) {
-			return this.winningPositions2.findValue( function( e ) {
+			return this.winningPositions.findValue( function( e ) {
         var foundCount = e.filter( function(elem) {
             return playerPositions.indexOf( elem ) < 0;
         });
@@ -199,7 +193,6 @@ $(function() {
 		},
 
 		findWinningPosition: function ( counter ) {
-			// Search for any possible winning scenarios for 'counter'.
 			var possibleWins = [];
 			var position, possPos = -1;
 			var counterIndexes = this.findPlayerPositions ( counter );
@@ -325,8 +318,7 @@ $(function() {
 
 		found3InARow: function ( counter ) {
 			var positions;
-			// var counterIndexes = this.findPlayerPositions( counter );
-			var results = this.winningPositions2.filter( function( element ) {
+			var results = this.winningPositions.filter( function( element ) {
 				return element.every( function( e ){
 					return this.found( counter, e );
 				},this);
@@ -336,15 +328,6 @@ $(function() {
 				return true;
 			}
 			return false; 
-			// for (var i = 0; i < counterIndexes.length; i++) {
-			// 	positions = this.winningPositions[ counterIndexes[ i ] ];
-			// 	for (var j = 0; j < positions.length; j++ ) {
-			// 		if ( (counterIndexes.indexOf( positions[j][0] ) >=0 && counterIndexes.indexOf( positions[j][1] ) >= 0 ) ) {
-			// 			alert( counter + ' has won the game. Start a new game');
-			// 			return true;
-			// 		}
-			// 	}
-			// }
 		},
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -472,7 +455,6 @@ $(function() {
 			}
 		},
 		computerMove : function (/*player1Model*/) {
-			// generate computer move and update view with it:
 			var computerMove = boardGameModel.generateComputerMove();
 			return this.playMove( computerMove );	
 		},
@@ -490,9 +472,7 @@ $(function() {
 					this.gameOver();
 				}
 				else if( boardGameModel.gameMode() === gameMode.HVC ){
-					// trigger computer move
 					gameView.disableBoard();
-					// this.computerMove().isGameOver() ? this.gameOver() : gameView.enableBoard(); 
 					this.computerGame();
 				}
 			}
