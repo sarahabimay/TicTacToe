@@ -139,6 +139,7 @@ $(function() {
 		},
 		resetGame: function() {
 			// reset private variables when a new game begins
+			isPlayer1AComputer = false;
 			player1Type = "";
 			player2Type = "";
 			currentPlayer = player.PLAYER1;
@@ -189,7 +190,7 @@ $(function() {
 		},
 
 		findPossibleWin : function( playerPositions ) {
-			return this.winningPositions2.findValue( function( e ) {
+			return winningPositions2.findValue( function( e ) {
         var foundCount = e.filter( function(elem) {
             return playerPositions.indexOf( elem ) < 0;
         });
@@ -204,6 +205,18 @@ $(function() {
 			var position, possPos = -1;
 			var counterIndexes = this.findPlayerPositions ( counter );
 			return ( counterIndexes.length <= 0 ) ? position : this.findPossibleWin( counterIndexes );
+			// return counterIndexes.findValue( function ( element ) {
+			// 	possibleWins = this.winningPositions[element];
+			// 		return  possibleWins.findValue( function ( e ) {
+			// 			if( counterIndexes.indexOf( e[0]) >= 0 && this.isPositionEmpty( e[1] ) ){
+			// 			return e[1]; 
+			// 		}
+			// 		else if( counterIndexes.indexOf( e[1]) >= 0 && this.isPositionEmpty( e[0] ) ) {
+			// 			return e[0];
+			// 		}
+			// 		else return undefined;
+			// 	}, this );
+			// }, this );
 		},
 		
 		blockUserPosition: function () {
