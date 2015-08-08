@@ -93,9 +93,8 @@ $(function() {
 		playCount      : 0,
 		board : [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
 
-		winningPositions : [ [0,1,2],[0,4,8],[0, 3,6], [1,0,2],[1,4,7], 
-													[2,1,0],[2,5,8],[2,4,6], [3,0,6],[3,4,5], [4,3,5],[4,1,7],[4,0,8],[4,2,6],
-													[5,2,8],[5,3,4], [6,0,3],[6,2,4],[6,7,8], [7,6,8],[7,1,4], [8,6,7],[8,2,5],[8,0,4]],		             
+		winningPositions : [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], 
+													[2,5,8],[2,4,6],[3,4,5],[6,7,8]],
 
 		init: function ( player1, player2 ){
 			player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
@@ -188,15 +187,15 @@ $(function() {
             return playerPositions.indexOf( elem ) < 0;
         });
         
-        return ( foundCount.length === 1 ) ? foundCount[0] : undefined;
-    	});
+        return ( foundCount.length === 1 && this.isPositionEmpty( foundCount[0])) ? foundCount[0] : undefined;
+    	}, this);
 		},
 
 		findWinningPosition: function ( counter ) {
 			var possibleWins = [];
 			var position, possPos = -1;
 			var counterIndexes = this.findPlayerPositions ( counter );
-			return ( counterIndexes.length <= 0 ) ? position : this.findPossibleWin( counterIndexes );
+			return ( counterIndexes.length <= 1 ) ? position : this.findPossibleWin( counterIndexes );
 		},
 		
 		blockUserPosition: function () {
@@ -209,86 +208,88 @@ $(function() {
 			return this.findWinningPosition( this.getCounter() );
 		},
 
-		badChoice: function ( position ) {
-			// We want the computer to always win or draw so we should only use center or edge positions unless there
-			// is no other option.
-			// In order to ensure this, the function badChoice will tell us if a edge has been selected 
-			// when a non-edge is available.
-			var edgeSpaces = [ 1, 3, 5, 7 ];
-			var isEdge = false;
-			var unfilledSpaces = this.getUnfilledSpaces();
-			var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
+		// badChoice: function ( position ) {
+		// 	// We want the computer to always win or draw so we should only use center or edge positions unless there
+		// 	// is no other option.
+		// 	// In order to ensure this, the function badChoice will tell us if a edge has been selected 
+		// 	// when a non-edge is available.
+		// 	var edgeSpaces = [ 1, 3, 5, 7 ];
+		// 	var isEdge = false;
+		// 	var unfilledSpaces = this.getUnfilledSpaces();
+		// 	var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
 
-			if( position && nonEdgeSpaces.length ) {
-				isEdge = edgeSpaces.indexOf( position ) !== -1;
-			}
-			return isEdge;
-		},
+		// 	if( position && nonEdgeSpaces.length ) {
+		// 		isEdge = edgeSpaces.indexOf( position ) !== -1;
+		// 	}
+		// 	return isEdge;
+		// },
 
 		found: function ( counter, position ){
 			return board[ position ] === counter;
 		},
 
-		opponentOnDiagCorners: function () {
-			var oppCounter = this.getOpponentsCounter();
-			var positions = this.findPlayerPositions( oppCounter );
-			var diagonals = [ [0,8], [2,6] ];
-			return diagonals.some( function( element ) {
-				if( positions.length !== element.length ) return false;
+		// opponentOnDiagCorners: function () {
+		// 	var oppCounter = this.getOpponentsCounter();
+		// 	var positions = this.findPlayerPositions( oppCounter );
+		// 	var diagonals = [ [0,8], [2,6] ];
+		// 	return diagonals.some( function( element ) {
+		// 		if( positions.length !== element.length ) return false;
 
-				return this.found( oppCounter, element[0]) && this.found( oppCounter, element[ 1 ] );
-			}, this );
-		},
+		// 		return this.found( oppCounter, element[0]) && this.found( oppCounter, element[ 1 ] );
+		// 	}, this );
+		// },
 
-		getDiagonalStrategy: function ( that ) {
-			var edges = [ 1, 3, 5, 7 ];
-			return edges[ Math.floor(Math.random() * edges.length) ];
-		},
+		// getDiagonalStrategy: function ( that ) {
+		// 	var edges = [ 1, 3, 5, 7 ];
+		// 	return edges[ Math.floor(Math.random() * edges.length) ];
+		// },
 
-		getEdgeOppositeCornersStrategy: function ( that ) {
-			var corners = [ 0, 2, 6, 8 ];
-			var edges = [ 1, 3, 5, 7 ];
-			var oppCounter = that.getOpponentsCounter();
-			var counterIndexes = this.findPlayerPositions ( oppCounter );
+		// getEdgeOppositeCornersStrategy: function ( that ) {
+		// 	var corners = [ 0, 2, 6, 8 ];
+		// 	var edges = [ 1, 3, 5, 7 ];
+		// 	var oppCounter = that.getOpponentsCounter();
+		// 	var counterIndexes = this.findPlayerPositions ( oppCounter );
 
-		},
+		// },
 
-		getWildPosition: function ( that ) {
-			// if not first play then choose center position if available otherwise use minimax algo
-			var unfilledSpaces = that.getUnfilledSpaces();
-			return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
-			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-			// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
-		},
+		// getWildPosition: function ( that ) {
+		// 	// if not first play then choose center position if available otherwise use minimax algo
+		// 	var unfilledSpaces = that.getUnfilledSpaces();
+		// 	return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
+		// 	// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
+		// 	// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
+		// },
 
-		usesDiagonalStrategy: function () {
-			// if opponent has marked two opposing diagonal corners and current player is in the center 
-			// then this is a diagonal strategy.
-			var unfilledSpaces = this.getUnfilledSpaces();
-			return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
-		},
+		// usesDiagonalStrategy: function () {
+		// 	// if opponent has marked two opposing diagonal corners and current player is in the center 
+		// 	// then this is a diagonal strategy.
+		// 	var unfilledSpaces = this.getUnfilledSpaces();
+		// 	return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
+		// },
 
-		useEdgeAndOppositeCornerStrategy: function() {
-			// Another way of winning if you start on an edge:
-			// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
-			// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
-			// Need to block this.
+		// useEdgeAndOppositeCornerStrategy: function() {
+		// 	// Another way of winning if you start on an edge:
+		// 	// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
+		// 	// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
+		// 	// Need to block this.
 
-		},
-		getStrategy: function (){
-			// If diagonalStrategy() then return diagonalStrategy
-			// otherwise generate a center or corner position.
-			return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
-		},
+		// },
+		// getStrategy: function (){
+		// 	// If diagonalStrategy() then return diagonalStrategy
+		// 	// otherwise generate a center or corner position.
+		// 	return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
+		// },
 
 		getNextPosition: function (){
 			// Get a Computer player's next move.
 			// The Computer should win or draw but never lose.
 			var unfilledSpaces = this.getUnfilledSpaces(); 
 			var position, strategy, randomIndex = -1;
+
+			position = minimax( board, playerType.COMPUTER, this.getCounter() );
 	
 			// If first play then choose randomly from corner or center positions
-			if ( unfilledSpaces.length === 9 ) {
+			/*if ( unfilledSpaces.length === 9 ) {
 				randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
 				position = unfilledSpaces[ randomIndex ];
 			}
@@ -296,7 +297,7 @@ $(function() {
 				// Check if a strategy is needed, otherwise centre or corner position will be chosen.
 				strategy = this.getStrategy();
 				position = strategy && strategy( this );
-			}
+			}*/
 			return position;	
 		},
 
