@@ -6,10 +6,11 @@
   "dependencies": {
     "bootstrap": "^3.3.5",
     "browserify": "^11.0.1",
-    "tape": "^4.0.3",
     "watchify": "^3.3.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "qunitjs": "^1.18.0"
+  },
   "scripts": {
     "test": "node tests/*.js"
   },

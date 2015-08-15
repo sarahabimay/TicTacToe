@@ -1,4 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var computerCounter = "";
+
 Array.prototype.filterIndex = function (fun/*, thisArg*/) {
 	'use strict';
 
@@ -82,97 +84,98 @@ function gameOver ( stateOfBoard ) {
 	}
 }
 
-// function evaluate ( counter, board ) {
-// 	var score = 0;
-// 	// Evaluate score for each of the 8 lines (3 rows, 3 columns, 2 diagonals)
-// 	score += evaluateLine(counter, board, 0, 1, 2);  // row 0
-// 	score += evaluateLine(counter, board, 3, 4, 5);  // row 1
-// 	score += evaluateLine(counter, board, 6, 7, 8);  // row 2
-// 	score += evaluateLine(counter, board, 0, 3, 6);  // col 0
-// 	score += evaluateLine(counter, board, 1, 4, 7);  // col 1
-// 	score += evaluateLine(counter, board, 2, 5, 8);  // col 2
-// 	score += evaluateLine(counter, board, 0, 4, 8);  // diagonal
-// 	score += evaluateLine(counter, board, 2, 4, 6);  // alternate diagonal
-// 	return score;
-// }
+function evaluate ( counter, board ) {
+	var score = 0;
+	// Evaluate score for each of the 8 lines (3 rows, 3 columns, 2 diagonals)
+	score += evaluateLine(counter, board, 0, 1, 2);  // row 0
+	score += evaluateLine(counter, board, 3, 4, 5);  // row 1
+	score += evaluateLine(counter, board, 6, 7, 8);  // row 2
+	score += evaluateLine(counter, board, 0, 3, 6);  // col 0
+	score += evaluateLine(counter, board, 1, 4, 7);  // col 1
+	score += evaluateLine(counter, board, 2, 5, 8);  // col 2
+	score += evaluateLine(counter, board, 0, 4, 8);  // diagonal
+	score += evaluateLine(counter, board, 2, 4, 6);  // alternate diagonal
+	return score;
+}
 
-// /** The heuristic evaluation function for the given line of 3 cells
-// 	 @Return +100, +10, +1 for 3-, 2-, 1-in-a-line for computer.
-// 					 -100, -10, -1 for 3-, 2-, 1-in-a-line for opponent.
-// 					 0 otherwise */
-// function evaluateLine ( computerCounter, board, pos1, pos2, pos3 ) {
-// 	var score = 0;
+/** The heuristic evaluation function for the given line of 3 cells
+	 @Return +100, +10, +1 for 3-, 2-, 1-in-a-line for computer.
+					 -100, -10, -1 for 3-, 2-, 1-in-a-line for opponent.
+					 0 otherwise */
+function evaluateLine ( counter, board, pos1, pos2, pos3 ) {
+	var score = 0;
 
-// 	// First cell
-// 	if (board[ pos1 ] === computerCounter) {
-// 		 score = 1;
-// 	} 
-// 	else if (board[ pos1 ] === getInverseCounter( computerCounter ) ) {
-// 		 score = -1;
-// 	}
-
-// 	// Second cell
-// 	if (board[ pos2 ] === computerCounter) {
-// 		 if (score === 1) {   // board[ pos1 ] is counter
-// 				score = 10;
-// 		 } 
-// 		 else if (score === -1) {  // board[ pos1 ] is other counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] is empty
-// 				score = 1;
-// 		 }
-// 	} 
-// 	else if (board[ pos2 ] === getInverseCounter( computerCounter )) {
-// 		 if (score == -1) { // board[ pos1 ] is opponent counter
-// 				score = -10;
-// 		 } 
-// 		 else if (score === 1) { // board[ pos1 ] is counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] is empty
-// 				score = -1;
-// 		 }
-// 	}
-
-// 	// Third cell
-// 	if (board[ pos3 ] === computerCounter) {
-// 		 if (score > 0) {  // board[ pos1 ] and/or board[ pos2 ] is counter
-// 				score *= 10;
-// 		 } 
-// 		 else if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] and board[ pos2 ] are empty
-// 				score = 1;
-// 		 }
-// 	} 
-// 	else if (board[ pos3 ] === getInverseCounter( computerCounter ) ) {
-// 		 if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
-// 				score *= 10;
-// 		 } 
-// 		 else if (score > 1) {  // board[ pos1 ] and/or board[ pos2 ] is counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] and board[ pos2 ] are empty
-// 				score = -1;
-// 		 }
-// 	}
-// 	return score;
-// }
-
-
-
-function getScore( stateOfBoard ) {
-	if( found3InARow( computerCounter, stateOfBoard ) ) {
-		return 10;
+	// First cell
+	if (board[ pos1 ] === computerCounter) {
+		 score = 1;
+	} 
+	else if (board[ pos1 ] === getInverseCounter( computerCounter ) ) {
+		 score = -1;
 	}
-	else if( found3InARow( getInverseCounter( computerCounter ), stateOfBoard ) ) {
-		return -10;
+
+	// Second cell
+	if (board[ pos2 ] === computerCounter) {
+		 if (score === 1) {   // board[ pos1 ] is counter
+				score = 10;
+		 } 
+		 else if (score === -1) {  // board[ pos1 ] is other counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] is empty
+				score = 1;
+		 }
+	} 
+	else if (board[ pos2 ] === getInverseCounter( computerCounter )) {
+		 if (score == -1) { // board[ pos1 ] is opponent counter
+				score = -10;
+		 } 
+		 else if (score === 1) { // board[ pos1 ] is counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] is empty
+				score = -1;
+		 }
 	}
-	else {
-		return 0;
+
+	// Third cell
+	if (board[ pos3 ] === computerCounter) {
+		 if (score > 0) {  // board[ pos1 ] and/or board[ pos2 ] is counter
+				score *= 10;
+		 } 
+		 else if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] and board[ pos2 ] are empty
+				score = 1;
+		 }
+	} 
+	else if (board[ pos3 ] === getInverseCounter( computerCounter ) ) {
+		 if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
+				score *= 10;
+		 } 
+		 else if (score > 1) {  // board[ pos1 ] and/or board[ pos2 ] is counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] and board[ pos2 ] are empty
+				score = -1;
+		 }
 	}
+	return score;
+}
+
+
+
+function getScore( stateOfBoard, depth ) {
+	return evaluate( computerCounter, stateOfBoard );
+	// if( found3InARow( computerCounter, stateOfBoard ) ) {
+	// 	return 10 - depth;
+	// }
+	// else if( found3InARow( getInverseCounter( computerCounter ), stateOfBoard ) ) {
+	// 	return depth -10 ;
+	// }
+	// else {
+	// 	return 0;
+	// }
 }
 // function getFutureScoreOfMove (stateOfBoard, depth, playersTurn, counter) {
 // 	var stateOfBoardAfterMove = stateOfBoard;
@@ -230,7 +233,6 @@ function maxOfArray( array ) {
 function minOfArray( array ) {
 	return Math.min.apply(null, array );
 }
-var computerCounter = "";
 
 module.exports = function( stateOfBoard, player, counter ){
 	var stateOfBoardAfterMove = stateOfBoard;
@@ -240,12 +242,13 @@ module.exports = function( stateOfBoard, player, counter ){
 		moves = [];  // an array of moves
 
 	var availableMoves = getAvailableMoves( stateOfBoard );
+	var depth = 0;
 
 	computerCounter = counter;
 
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 		moves.push( aMove );
@@ -266,7 +269,7 @@ module.exports = function( stateOfBoard, player, counter ){
 		return bestMove;
 	}
 };
-function minimax ( stateOfBoard, player, counter ) {
+function minimax ( depth, stateOfBoard, player, counter ) {
 // exports.minimax = function ( stateOfBoard, player, counter ) {
 	var stateOfBoardAfterMove = stateOfBoard;
 	var availableMoves = getAvailableMoves( stateOfBoard );
@@ -274,16 +277,18 @@ function minimax ( stateOfBoard, player, counter ) {
 	var score, bestScore,  bestMove, maxScoreIndex, minScoreIndex;
 	var scores = [], // an array of scores
 		moves = [];  // an array of moves
-	if( gameOver( stateOfBoard ) ) {
+	if( gameOver( stateOfBoard, depth ) ) {
 		// return 1 if AI wins, 0 if draw, -1 if user wins
-		return getScore( stateOfBoard );
+		return getScore( stateOfBoard, depth );
 		// return evaluate( counter, stateOfBoard );
 	}
+	
+	++depth;
 
 	//Populate the scores array, recursing as needed
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 		moves.push( aMove );
@@ -391,7 +396,7 @@ Array.prototype.findValue = function (predicate) {
 	return undefined;
 };
 
-$(function() {
+(function() {
 
 	var Counter = {
 		X : "X",
@@ -438,16 +443,14 @@ $(function() {
 													[2,5,8],[2,4,6],[3,4,5],[6,7,8]],
 
 		init: function ( player1, player2 ){
-			player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
-			player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
-			currentPlayer = player.PLAYER1; // start with undefined player
-			playCount = 0;
-			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
-
+			if( player1 !== undefined ){
+				this.player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+				this.player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+			}
 		},
 
 		isPlayer1Computer: function () {
-			return player1Type === playerType.COMPUTER;
+			return this.player1Type === playerType.COMPUTER;
 		},
 
 		isValidPlayerType: function ( playerType ){
@@ -455,41 +458,41 @@ $(function() {
 		},
 
 		gameMode: function () {
-			if( player1Type === playerType.HUMAN ) {
-				if( player2Type === playerType.HUMAN) {
+			if( this.player1Type === playerType.HUMAN ) {
+				if( this.player2Type === playerType.HUMAN) {
 					return gameMode.HVH;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( this.player2Type === playerType.COMPUTER ) {
 					return gameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === playerType.HUMAN) {
+				if( this.player2Type === playerType.HUMAN) {
 					return gameMode.HVC;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( this.player2Type === playerType.COMPUTER ) {
 					return gameMode.CVC;
 				}
 			}
 		},
 		resetGame: function() {
-			player1Type = "";
-			player2Type = "";
-			currentPlayer = player.PLAYER1;
-			playCount = 0;
-			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+			this.player1Type = "";
+			this.player2Type = "";
+			this.currentPlayer = player.PLAYER1;
+			this.playCount = 0;
+			this.board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		},
 
 		isPositionEmpty: function ( position ) {
-			return ( board[ position ] === counter.X || board[ position ] === counter.O ) ? false : true;
+			return ( this.board[ position ] === counter.X || this.board[ position ] === counter.O ) ? false : true;
 		},
 
 		updateBoard: function ( position, counter ) {
-			board[ position ] = counter;
+			this.board[ position ] = counter;
 		},
 
 		getCounter: function (){
-			return currentPlayer ? (currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
+			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
 		},
 
 		getOpponentsCounter: function () {
@@ -497,18 +500,18 @@ $(function() {
 		},
 
 		findPlayerPositions: function ( counter ) {
-			return board.filterIndex( function( element, index ) {
+			return this.board.filterIndex( function( element, index ) {
 				return element === counter;
 			});
 		},
 
 		incPlayCount: function () {
-			return playCount++;
+			return this.playCount++;
 		},
 
 		switchCurrentPlayer: function () {
-			currentPlayer = currentPlayer === undefined ? player.PLAYER1 : (currentPlayer === player.PLAYER1 ) ? player.PLAYER2 : player.PLAYER1;
-			return currentPlayer;
+			this.currentPlayer = this.currentPlayer === undefined ? player.PLAYER1 : (this.currentPlayer === player.PLAYER1 ) ? player.PLAYER2 : player.PLAYER1;
+			return this.currentPlayer;
 		},
 
 		getUnfilledSpaces: function () {
@@ -533,8 +536,7 @@ $(function() {
 		},
 
 		findWinningPosition: function ( counter ) {
-			var possibleWins = [];
-			var position, possPos = -1;
+			var position = -1;
 			var counterIndexes = this.findPlayerPositions ( counter );
 			return ( counterIndexes.length <= 1 ) ? position : this.findPossibleWin( counterIndexes );
 		},
@@ -549,85 +551,85 @@ $(function() {
 			return this.findWinningPosition( this.getCounter() );
 		},
 
-		badChoice: function ( position ) {
-			// We want the computer to always win or draw so we should only use center or edge positions unless there
-			// is no other option.
-			// In order to ensure this, the function badChoice will tell us if a edge has been selected 
-			// when a non-edge is available.
-			var edgeSpaces = [ 1, 3, 5, 7 ];
-			var isEdge = false;
-			var unfilledSpaces = this.getUnfilledSpaces();
-			var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
+		// badChoice: function ( position ) {
+		// 	// We want the computer to always win or draw so we should only use center or edge positions unless there
+		// 	// is no other option.
+		// 	// In order to ensure this, the function badChoice will tell us if a edge has been selected 
+		// 	// when a non-edge is available.
+		// 	var edgeSpaces = [ 1, 3, 5, 7 ];
+		// 	var isEdge = false;
+		// 	var unfilledSpaces = this.getUnfilledSpaces();
+		// 	var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
 
-			if( position && nonEdgeSpaces.length ) {
-				isEdge = edgeSpaces.indexOf( position ) !== -1;
-			}
-			return isEdge;
-		},
+		// 	if( position && nonEdgeSpaces.length ) {
+		// 		isEdge = edgeSpaces.indexOf( position ) !== -1;
+		// 	}
+		// 	return isEdge;
+		// },
 
 		found: function ( counter, position ){
-			return board[ position ] === counter;
+			return this.board[ position ] === counter;
 		},
 
-		opponentOnDiagCorners: function () {
-			var oppCounter = this.getOpponentsCounter();
-			var positions = this.findPlayerPositions( oppCounter );
-			var diagonals = [ [0,8], [2,6] ];
-			return diagonals.some( function( element ) {
-				if( positions.length !== element.length ) return false;
+		// opponentOnDiagCorners: function () {
+		// 	var oppCounter = this.getOpponentsCounter();
+		// 	var positions = this.findPlayerPositions( oppCounter );
+		// 	var diagonals = [ [0,8], [2,6] ];
+		// 	return diagonals.some( function( element ) {
+		// 		if( positions.length !== element.length ) return false;
 
-				return this.found( oppCounter, element[0]) && this.found( oppCounter, element[ 1 ] );
-			}, this );
-		},
+		// 		return this.found( oppCounter, element[0]) && this.found( oppCounter, element[ 1 ] );
+		// 	}, this );
+		// },
 
-		getDiagonalStrategy: function ( that ) {
-			var edges = [ 1, 3, 5, 7 ];
-			return edges[ Math.floor(Math.random() * edges.length) ];
-		},
+		// getDiagonalStrategy: function ( that ) {
+		// 	var edges = [ 1, 3, 5, 7 ];
+		// 	return edges[ Math.floor(Math.random() * edges.length) ];
+		// },
 
-		getEdgeOppositeCornersStrategy: function ( that ) {
-			var corners = [ 0, 2, 6, 8 ];
-			var edges = [ 1, 3, 5, 7 ];
-			var oppCounter = that.getOpponentsCounter();
-			var counterIndexes = this.findPlayerPositions ( oppCounter );
+		// getEdgeOppositeCornersStrategy: function ( that ) {
+		// 	var corners = [ 0, 2, 6, 8 ];
+		// 	var edges = [ 1, 3, 5, 7 ];
+		// 	var oppCounter = that.getOpponentsCounter();
+		// 	var counterIndexes = this.findPlayerPositions ( oppCounter );
 
-		},
+		// },
 
-		getWildPosition: function ( that ) {
-			// if not first play then choose center position if available otherwise use minimax algo
-			var unfilledSpaces = that.getUnfilledSpaces();
-			return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
-			// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-			// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
-		},
+		// getWildPosition: function ( that ) {
+		// 	// if not first play then choose center position if available otherwise use minimax algo
+		// 	var unfilledSpaces = that.getUnfilledSpaces();
+		// 	return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
+		// 	// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
+		// 	// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
+		// },
 
-		usesDiagonalStrategy: function () {
-			// if opponent has marked two opposing diagonal corners and current player is in the center 
-			// then this is a diagonal strategy.
-			var unfilledSpaces = this.getUnfilledSpaces();
-			return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
-		},
+		// usesDiagonalStrategy: function () {
+		// 	// if opponent has marked two opposing diagonal corners and current player is in the center 
+		// 	// then this is a diagonal strategy.
+		// 	var unfilledSpaces = this.getUnfilledSpaces();
+		// 	return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
+		// },
 
-		useEdgeAndOppositeCornerStrategy: function() {
-			// Another way of winning if you start on an edge:
-			// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
-			// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
-			// Need to block this.
+		// useEdgeAndOppositeCornerStrategy: function() {
+		// 	// Another way of winning if you start on an edge:
+		// 	// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
+		// 	// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
+		// 	// Need to block this.
 
-		},
-		getStrategy: function (){
-			// If diagonalStrategy() then return diagonalStrategy
-			// otherwise generate a center or corner position.
-			return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
-		},
+		// },
+		// getStrategy: function (){
+		// 	// If diagonalStrategy() then return diagonalStrategy
+		// 	// otherwise generate a center or corner position.
+		// 	return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
+		// },
 
 		getNextPosition: function (){
 			// Get a Computer player's next move.
 			// The Computer should win or draw but never lose.
-			var unfilledSpaces = this.getUnfilledSpaces(); 
-			var position, strategy, randomIndex = -1;
+			// var unfilledSpaces = this.getUnfilledSpaces(); 
+			var position/*, strategy, randomIndex*/ = -1;
 
-			position = minimax( board, playerType.COMPUTER, this.getCounter() );
+			position = minimax( this.board, playerType.COMPUTER, this.getCounter() );
 	
 			// If first play then choose randomly from corner or center positions
 			/*if ( unfilledSpaces.length === 9 ) {
@@ -659,7 +661,6 @@ $(function() {
 		},
 
 		found3InARow: function ( counter ) {
-			var positions;
 			var results = this.winningPositions.filter( function( element ) {
 				return element.every( function( e ){
 					return this.found( counter, e );
@@ -676,13 +677,13 @@ $(function() {
 		//////// isGameOver - checks if either player has won or if there is a draw //////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		isGameOver : function () {
-			if( playCount < 3) {
+			if( this.playCount < 3) {
 				return false;
 			}
 			if( this.found3InARow( counter.X ) || this.found3InARow( counter.O ) ) {
 				return true;
 			}
-			else if ( playCount === 9 ) {
+			else if ( this.playCount === 9 ) {
 				alert(  "It's a DRAW!! Start a new game");
 				return true;
 			}
@@ -710,6 +711,7 @@ $(function() {
 			$(".field").click (function () {
 				gameController.newUserMove( romans.indexOf( $(this).attr('id') ) );
 			});
+
 		},
 
 		renderNewGame: function ( player1Type, player2Type ) {
@@ -730,7 +732,6 @@ $(function() {
 			$("#p2Text").text( p2Text );
 			$("#stateofplay").hide();
 			$("#playerselect").show();
-			count = 0;
 		},
 
 		enableBoard : function () {
@@ -751,28 +752,21 @@ $(function() {
 		}
 	};
 
-	var count = 0;
 	var gameController = {
 	
 
 		init: function () {
-			boardGameModel.init();
 			gameView.init();
 		},
 
 		startGame: function ( player1, player2) {
-			var computersNextMove = -1;
+
 			boardGameModel.init( player1, player2 );
 			// player1 and player2 model: ??
 
 			gameView.renderNewGame( player1, player2 );
 			// if( player1Model.isComputer() ) ...
-			if( boardGameModel.isPlayer1Computer() ) {
-				this.computerGame();
-			}
-			else {
-				gameView.enableBoard();
-			}
+			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
 		},
 
 		resetGame: function () {
@@ -797,8 +791,7 @@ $(function() {
 			}
 		},
 		computerMove : function (/*player1Model*/) {
-			var computerMove = boardGameModel.generateComputerMove();
-			return this.playMove( computerMove );	
+			return this.playMove( boardGameModel.generateComputerMove() );	
 		},
 
 		gameOver : function () {
@@ -820,8 +813,12 @@ $(function() {
 			}
 		}
 	};
-
+	window.boardGameModel = boardGameModel;
+	window.gameView = gameView;
+	window.gameController = gameController;
 	gameController.init();
-});
+})();
+
+window.minimax = minimax;
 
 },{"./modules/minimax.js":1}]},{},[2]);

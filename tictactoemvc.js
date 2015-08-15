@@ -50,7 +50,7 @@ Array.prototype.findValue = function (predicate) {
 	return undefined;
 };
 
-$(function() {
+(function() {
 
 	var Counter = {
 		X : "X",
@@ -97,16 +97,14 @@ $(function() {
 													[2,5,8],[2,4,6],[3,4,5],[6,7,8]],
 
 		init: function ( player1, player2 ){
-			player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
-			player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
-			currentPlayer = player.PLAYER1; // start with undefined player
-			playCount = 0;
-			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8];
-
+			if( player1 !== undefined ){
+				this.player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+				this.player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+			}
 		},
 
 		isPlayer1Computer: function () {
-			return player1Type === playerType.COMPUTER;
+			return this.player1Type === playerType.COMPUTER;
 		},
 
 		isValidPlayerType: function ( playerType ){
@@ -114,41 +112,41 @@ $(function() {
 		},
 
 		gameMode: function () {
-			if( player1Type === playerType.HUMAN ) {
-				if( player2Type === playerType.HUMAN) {
+			if( this.player1Type === playerType.HUMAN ) {
+				if( this.player2Type === playerType.HUMAN) {
 					return gameMode.HVH;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( this.player2Type === playerType.COMPUTER ) {
 					return gameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === playerType.HUMAN) {
+				if( this.player2Type === playerType.HUMAN) {
 					return gameMode.HVC;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( this.player2Type === playerType.COMPUTER ) {
 					return gameMode.CVC;
 				}
 			}
 		},
 		resetGame: function() {
-			player1Type = "";
-			player2Type = "";
-			currentPlayer = player.PLAYER1;
-			playCount = 0;
-			board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+			this.player1Type = "";
+			this.player2Type = "";
+			this.currentPlayer = player.PLAYER1;
+			this.playCount = 0;
+			this.board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		},
 
 		isPositionEmpty: function ( position ) {
-			return ( board[ position ] === counter.X || board[ position ] === counter.O ) ? false : true;
+			return ( this.board[ position ] === counter.X || this.board[ position ] === counter.O ) ? false : true;
 		},
 
 		updateBoard: function ( position, counter ) {
-			board[ position ] = counter;
+			this.board[ position ] = counter;
 		},
 
 		getCounter: function (){
-			return currentPlayer ? (currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
+			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
 		},
 
 		getOpponentsCounter: function () {
@@ -156,18 +154,18 @@ $(function() {
 		},
 
 		findPlayerPositions: function ( counter ) {
-			return board.filterIndex( function( element, index ) {
+			return this.board.filterIndex( function( element, index ) {
 				return element === counter;
 			});
 		},
 
 		incPlayCount: function () {
-			return playCount++;
+			return this.playCount++;
 		},
 
 		switchCurrentPlayer: function () {
-			currentPlayer = currentPlayer === undefined ? player.PLAYER1 : (currentPlayer === player.PLAYER1 ) ? player.PLAYER2 : player.PLAYER1;
-			return currentPlayer;
+			this.currentPlayer = this.currentPlayer === undefined ? player.PLAYER1 : (this.currentPlayer === player.PLAYER1 ) ? player.PLAYER2 : player.PLAYER1;
+			return this.currentPlayer;
 		},
 
 		getUnfilledSpaces: function () {
@@ -192,8 +190,7 @@ $(function() {
 		},
 
 		findWinningPosition: function ( counter ) {
-			var possibleWins = [];
-			var position, possPos = -1;
+			var position = -1;
 			var counterIndexes = this.findPlayerPositions ( counter );
 			return ( counterIndexes.length <= 1 ) ? position : this.findPossibleWin( counterIndexes );
 		},
@@ -225,7 +222,7 @@ $(function() {
 		// },
 
 		found: function ( counter, position ){
-			return board[ position ] === counter;
+			return this.board[ position ] === counter;
 		},
 
 		// opponentOnDiagCorners: function () {
@@ -283,10 +280,10 @@ $(function() {
 		getNextPosition: function (){
 			// Get a Computer player's next move.
 			// The Computer should win or draw but never lose.
-			var unfilledSpaces = this.getUnfilledSpaces(); 
-			var position, strategy, randomIndex = -1;
+			// var unfilledSpaces = this.getUnfilledSpaces(); 
+			var position/*, strategy, randomIndex*/ = -1;
 
-			position = minimax( board, playerType.COMPUTER, this.getCounter() );
+			position = minimax( this.board, playerType.COMPUTER, this.getCounter() );
 	
 			// If first play then choose randomly from corner or center positions
 			/*if ( unfilledSpaces.length === 9 ) {
@@ -318,7 +315,6 @@ $(function() {
 		},
 
 		found3InARow: function ( counter ) {
-			var positions;
 			var results = this.winningPositions.filter( function( element ) {
 				return element.every( function( e ){
 					return this.found( counter, e );
@@ -335,13 +331,13 @@ $(function() {
 		//////// isGameOver - checks if either player has won or if there is a draw //////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		isGameOver : function () {
-			if( playCount < 3) {
+			if( this.playCount < 3) {
 				return false;
 			}
 			if( this.found3InARow( counter.X ) || this.found3InARow( counter.O ) ) {
 				return true;
 			}
-			else if ( playCount === 9 ) {
+			else if ( this.playCount === 9 ) {
 				alert(  "It's a DRAW!! Start a new game");
 				return true;
 			}
@@ -369,6 +365,7 @@ $(function() {
 			$(".field").click (function () {
 				gameController.newUserMove( romans.indexOf( $(this).attr('id') ) );
 			});
+
 		},
 
 		renderNewGame: function ( player1Type, player2Type ) {
@@ -389,7 +386,6 @@ $(function() {
 			$("#p2Text").text( p2Text );
 			$("#stateofplay").hide();
 			$("#playerselect").show();
-			count = 0;
 		},
 
 		enableBoard : function () {
@@ -410,28 +406,21 @@ $(function() {
 		}
 	};
 
-	var count = 0;
 	var gameController = {
 	
 
 		init: function () {
-			boardGameModel.init();
 			gameView.init();
 		},
 
 		startGame: function ( player1, player2) {
-			var computersNextMove = -1;
+
 			boardGameModel.init( player1, player2 );
 			// player1 and player2 model: ??
 
 			gameView.renderNewGame( player1, player2 );
 			// if( player1Model.isComputer() ) ...
-			if( boardGameModel.isPlayer1Computer() ) {
-				this.computerGame();
-			}
-			else {
-				gameView.enableBoard();
-			}
+			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
 		},
 
 		resetGame: function () {
@@ -456,8 +445,7 @@ $(function() {
 			}
 		},
 		computerMove : function (/*player1Model*/) {
-			var computerMove = boardGameModel.generateComputerMove();
-			return this.playMove( computerMove );	
+			return this.playMove( boardGameModel.generateComputerMove() );	
 		},
 
 		gameOver : function () {
@@ -479,6 +467,10 @@ $(function() {
 			}
 		}
 	};
-
+	window.boardGameModel = boardGameModel;
+	window.gameView = gameView;
+	window.gameController = gameController;
 	gameController.init();
-});
+})();
+
+window.minimax = minimax;

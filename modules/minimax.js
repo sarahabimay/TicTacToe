@@ -1,3 +1,5 @@
+var computerCounter = "";
+
 Array.prototype.filterIndex = function (fun/*, thisArg*/) {
 	'use strict';
 
@@ -81,97 +83,98 @@ function gameOver ( stateOfBoard ) {
 	}
 }
 
-// function evaluate ( counter, board ) {
-// 	var score = 0;
-// 	// Evaluate score for each of the 8 lines (3 rows, 3 columns, 2 diagonals)
-// 	score += evaluateLine(counter, board, 0, 1, 2);  // row 0
-// 	score += evaluateLine(counter, board, 3, 4, 5);  // row 1
-// 	score += evaluateLine(counter, board, 6, 7, 8);  // row 2
-// 	score += evaluateLine(counter, board, 0, 3, 6);  // col 0
-// 	score += evaluateLine(counter, board, 1, 4, 7);  // col 1
-// 	score += evaluateLine(counter, board, 2, 5, 8);  // col 2
-// 	score += evaluateLine(counter, board, 0, 4, 8);  // diagonal
-// 	score += evaluateLine(counter, board, 2, 4, 6);  // alternate diagonal
-// 	return score;
-// }
+function evaluate ( counter, board ) {
+	var score = 0;
+	// Evaluate score for each of the 8 lines (3 rows, 3 columns, 2 diagonals)
+	score += evaluateLine(counter, board, 0, 1, 2);  // row 0
+	score += evaluateLine(counter, board, 3, 4, 5);  // row 1
+	score += evaluateLine(counter, board, 6, 7, 8);  // row 2
+	score += evaluateLine(counter, board, 0, 3, 6);  // col 0
+	score += evaluateLine(counter, board, 1, 4, 7);  // col 1
+	score += evaluateLine(counter, board, 2, 5, 8);  // col 2
+	score += evaluateLine(counter, board, 0, 4, 8);  // diagonal
+	score += evaluateLine(counter, board, 2, 4, 6);  // alternate diagonal
+	return score;
+}
 
-// /** The heuristic evaluation function for the given line of 3 cells
-// 	 @Return +100, +10, +1 for 3-, 2-, 1-in-a-line for computer.
-// 					 -100, -10, -1 for 3-, 2-, 1-in-a-line for opponent.
-// 					 0 otherwise */
-// function evaluateLine ( computerCounter, board, pos1, pos2, pos3 ) {
-// 	var score = 0;
+/** The heuristic evaluation function for the given line of 3 cells
+	 @Return +100, +10, +1 for 3-, 2-, 1-in-a-line for computer.
+					 -100, -10, -1 for 3-, 2-, 1-in-a-line for opponent.
+					 0 otherwise */
+function evaluateLine ( counter, board, pos1, pos2, pos3 ) {
+	var score = 0;
 
-// 	// First cell
-// 	if (board[ pos1 ] === computerCounter) {
-// 		 score = 1;
-// 	} 
-// 	else if (board[ pos1 ] === getInverseCounter( computerCounter ) ) {
-// 		 score = -1;
-// 	}
-
-// 	// Second cell
-// 	if (board[ pos2 ] === computerCounter) {
-// 		 if (score === 1) {   // board[ pos1 ] is counter
-// 				score = 10;
-// 		 } 
-// 		 else if (score === -1) {  // board[ pos1 ] is other counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] is empty
-// 				score = 1;
-// 		 }
-// 	} 
-// 	else if (board[ pos2 ] === getInverseCounter( computerCounter )) {
-// 		 if (score == -1) { // board[ pos1 ] is opponent counter
-// 				score = -10;
-// 		 } 
-// 		 else if (score === 1) { // board[ pos1 ] is counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] is empty
-// 				score = -1;
-// 		 }
-// 	}
-
-// 	// Third cell
-// 	if (board[ pos3 ] === computerCounter) {
-// 		 if (score > 0) {  // board[ pos1 ] and/or board[ pos2 ] is counter
-// 				score *= 10;
-// 		 } 
-// 		 else if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] and board[ pos2 ] are empty
-// 				score = 1;
-// 		 }
-// 	} 
-// 	else if (board[ pos3 ] === getInverseCounter( computerCounter ) ) {
-// 		 if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
-// 				score *= 10;
-// 		 } 
-// 		 else if (score > 1) {  // board[ pos1 ] and/or board[ pos2 ] is counter
-// 				return 0;
-// 		 } 
-// 		 else {  // board[ pos1 ] and board[ pos2 ] are empty
-// 				score = -1;
-// 		 }
-// 	}
-// 	return score;
-// }
-
-
-
-function getScore( stateOfBoard ) {
-	if( found3InARow( computerCounter, stateOfBoard ) ) {
-		return 10;
+	// First cell
+	if (board[ pos1 ] === computerCounter) {
+		 score = 1;
+	} 
+	else if (board[ pos1 ] === getInverseCounter( computerCounter ) ) {
+		 score = -1;
 	}
-	else if( found3InARow( getInverseCounter( computerCounter ), stateOfBoard ) ) {
-		return -10;
+
+	// Second cell
+	if (board[ pos2 ] === computerCounter) {
+		 if (score === 1) {   // board[ pos1 ] is counter
+				score = 10;
+		 } 
+		 else if (score === -1) {  // board[ pos1 ] is other counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] is empty
+				score = 1;
+		 }
+	} 
+	else if (board[ pos2 ] === getInverseCounter( computerCounter )) {
+		 if (score == -1) { // board[ pos1 ] is opponent counter
+				score = -10;
+		 } 
+		 else if (score === 1) { // board[ pos1 ] is counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] is empty
+				score = -1;
+		 }
 	}
-	else {
-		return 0;
+
+	// Third cell
+	if (board[ pos3 ] === computerCounter) {
+		 if (score > 0) {  // board[ pos1 ] and/or board[ pos2 ] is counter
+				score *= 10;
+		 } 
+		 else if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] and board[ pos2 ] are empty
+				score = 1;
+		 }
+	} 
+	else if (board[ pos3 ] === getInverseCounter( computerCounter ) ) {
+		 if (score < 0) {  // board[ pos1 ] and/or board[ pos2 ] is opponent counter
+				score *= 10;
+		 } 
+		 else if (score > 1) {  // board[ pos1 ] and/or board[ pos2 ] is counter
+				return 0;
+		 } 
+		 else {  // board[ pos1 ] and board[ pos2 ] are empty
+				score = -1;
+		 }
 	}
+	return score;
+}
+
+
+
+function getScore( stateOfBoard, depth ) {
+	return evaluate( computerCounter, stateOfBoard );
+	// if( found3InARow( computerCounter, stateOfBoard ) ) {
+	// 	return 10 - depth;
+	// }
+	// else if( found3InARow( getInverseCounter( computerCounter ), stateOfBoard ) ) {
+	// 	return depth -10 ;
+	// }
+	// else {
+	// 	return 0;
+	// }
 }
 // function getFutureScoreOfMove (stateOfBoard, depth, playersTurn, counter) {
 // 	var stateOfBoardAfterMove = stateOfBoard;
@@ -229,7 +232,6 @@ function maxOfArray( array ) {
 function minOfArray( array ) {
 	return Math.min.apply(null, array );
 }
-var computerCounter = "";
 
 module.exports = function( stateOfBoard, player, counter ){
 	var stateOfBoardAfterMove = stateOfBoard;
@@ -239,12 +241,13 @@ module.exports = function( stateOfBoard, player, counter ){
 		moves = [];  // an array of moves
 
 	var availableMoves = getAvailableMoves( stateOfBoard );
+	var depth = 0;
 
 	computerCounter = counter;
 
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 		moves.push( aMove );
@@ -265,7 +268,7 @@ module.exports = function( stateOfBoard, player, counter ){
 		return bestMove;
 	}
 };
-function minimax ( stateOfBoard, player, counter ) {
+function minimax ( depth, stateOfBoard, player, counter ) {
 // exports.minimax = function ( stateOfBoard, player, counter ) {
 	var stateOfBoardAfterMove = stateOfBoard;
 	var availableMoves = getAvailableMoves( stateOfBoard );
@@ -273,16 +276,18 @@ function minimax ( stateOfBoard, player, counter ) {
 	var score, bestScore,  bestMove, maxScoreIndex, minScoreIndex;
 	var scores = [], // an array of scores
 		moves = [];  // an array of moves
-	if( gameOver( stateOfBoard ) ) {
+	if( gameOver( stateOfBoard, depth ) ) {
 		// return 1 if AI wins, 0 if draw, -1 if user wins
-		return getScore( stateOfBoard );
+		return getScore( stateOfBoard, depth );
 		// return evaluate( counter, stateOfBoard );
 	}
+	
+	++depth;
 
 	//Populate the scores array, recursing as needed
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 		moves.push( aMove );
