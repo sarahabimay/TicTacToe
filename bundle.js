@@ -551,96 +551,17 @@ Array.prototype.findValue = function (predicate) {
 			return this.findWinningPosition( this.getCounter() );
 		},
 
-		// badChoice: function ( position ) {
-		// 	// We want the computer to always win or draw so we should only use center or edge positions unless there
-		// 	// is no other option.
-		// 	// In order to ensure this, the function badChoice will tell us if a edge has been selected 
-		// 	// when a non-edge is available.
-		// 	var edgeSpaces = [ 1, 3, 5, 7 ];
-		// 	var isEdge = false;
-		// 	var unfilledSpaces = this.getUnfilledSpaces();
-		// 	var nonEdgeSpaces = unfilledSpaces.filter( function(val) { return edgeSpaces.indexOf( val ) < 0; });
-
-		// 	if( position && nonEdgeSpaces.length ) {
-		// 		isEdge = edgeSpaces.indexOf( position ) !== -1;
-		// 	}
-		// 	return isEdge;
-		// },
-
 		found: function ( counter, position ){
 			return this.board[ position ] === counter;
 		},
 
-		// opponentOnDiagCorners: function () {
-		// 	var oppCounter = this.getOpponentsCounter();
-		// 	var positions = this.findPlayerPositions( oppCounter );
-		// 	var diagonals = [ [0,8], [2,6] ];
-		// 	return diagonals.some( function( element ) {
-		// 		if( positions.length !== element.length ) return false;
-
-		// 		return this.found( oppCounter, element[0]) && this.found( oppCounter, element[ 1 ] );
-		// 	}, this );
-		// },
-
-		// getDiagonalStrategy: function ( that ) {
-		// 	var edges = [ 1, 3, 5, 7 ];
-		// 	return edges[ Math.floor(Math.random() * edges.length) ];
-		// },
-
-		// getEdgeOppositeCornersStrategy: function ( that ) {
-		// 	var corners = [ 0, 2, 6, 8 ];
-		// 	var edges = [ 1, 3, 5, 7 ];
-		// 	var oppCounter = that.getOpponentsCounter();
-		// 	var counterIndexes = this.findPlayerPositions ( oppCounter );
-
-		// },
-
-		// getWildPosition: function ( that ) {
-		// 	// if not first play then choose center position if available otherwise use minimax algo
-		// 	var unfilledSpaces = that.getUnfilledSpaces();
-		// 	return unfilledSpaces.indexOf( 4 ) >=0 ? 	4 : minimax( board, playerType.COMPUTER, that.getCounter() );
-		// 	// If position is a 'bad' choice then recursively generate another position and test with badChoice again.
-		// 	// return ( that.badChoice( position )) ? that.getNextPosition() : position;  
-		// },
-
-		// usesDiagonalStrategy: function () {
-		// 	// if opponent has marked two opposing diagonal corners and current player is in the center 
-		// 	// then this is a diagonal strategy.
-		// 	var unfilledSpaces = this.getUnfilledSpaces();
-		// 	return ( unfilledSpaces.length === 6 && this.opponentOnDiagCorners() && this.found( this.getCounter(), 4 ) ) && true;
-		// },
-
-		// useEdgeAndOppositeCornerStrategy: function() {
-		// 	// Another way of winning if you start on an edge:
-		// 	// If you mark an edge, followed by opponent marking center, then you mark one of the two corners farthest
-		// 	// away from your edge positon.  If opponent marks the other corner farthest from your edge then you have won.
-		// 	// Need to block this.
-
-		// },
-		// getStrategy: function (){
-		// 	// If diagonalStrategy() then return diagonalStrategy
-		// 	// otherwise generate a center or corner position.
-		// 	return ( this.usesDiagonalStrategy()) ? this.getDiagonalStrategy : this.getWildPosition;
-		// },
-
 		getNextPosition: function (){
 			// Get a Computer player's next move.
 			// The Computer should win or draw but never lose.
-			// var unfilledSpaces = this.getUnfilledSpaces(); 
-			var position/*, strategy, randomIndex*/ = -1;
+			var position = -1;
 
 			position = minimax( this.board, playerType.COMPUTER, this.getCounter() );
 	
-			// If first play then choose randomly from corner or center positions
-			/*if ( unfilledSpaces.length === 9 ) {
-				randomIndex = Math.floor(Math.random() * unfilledSpaces.length);
-				position = unfilledSpaces[ randomIndex ];
-			}
-			else {
-				// Check if a strategy is needed, otherwise centre or corner position will be chosen.
-				strategy = this.getStrategy();
-				position = strategy && strategy( this );
-			}*/
 			return position;	
 		},
 
@@ -673,9 +594,6 @@ Array.prototype.findValue = function (predicate) {
 			return false; 
 		},
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//////// isGameOver - checks if either player has won or if there is a draw //////////////////////
-		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		isGameOver : function () {
 			if( this.playCount < 3) {
 				return false;
