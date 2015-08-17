@@ -55,8 +55,7 @@ function found ( counter, position, stateOfBoard ){
 }
 function found3InARow ( counter, stateOfBoard ) {
 	// this could be improved to use the 'winningPositions' array
-	var winningPositions = [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], 
-							[2,5,8],[2,4,6],[3,4,5],[6,7,8]];
+	var winningPositions = [ [0,1,2],[0,4,8],[0,3,6],[1,4,7],[2,5,8],[2,4,6],[3,4,5],[6,7,8]];
 	var results = winningPositions.filter( function( element ) {
 		return element.every( function( e ){
 			return found( counter, e, stateOfBoard );
@@ -163,70 +162,10 @@ function evaluateLine ( counter, board, pos1, pos2, pos3 ) {
 	return score;
 }
 
-
-
 function getScore( stateOfBoard, depth ) {
 	return evaluate( computerCounter, stateOfBoard );
-	// if( found3InARow( computerCounter, stateOfBoard ) ) {
-	// 	return 10 - depth;
-	// }
-	// else if( found3InARow( getInverseCounter( computerCounter ), stateOfBoard ) ) {
-	// 	return depth -10 ;
-	// }
-	// else {
-	// 	return 0;
-	// }
 }
-// function getFutureScoreOfMove (stateOfBoard, depth, playersTurn, counter) {
-// 	var stateOfBoardAfterMove = stateOfBoard;
-// 	var availableMoves = getAvailableMoves( stateOfBoard );
-// 	var countOfMoves = availableMoves.length;
-// 	var score, currentBestScore, currentBestMove;
-// 	var movesTried = [];
-// 	if( gameOver( stateOfBoard ) ) {
-// 		// return 1 if AI wins, 0 if draw, -1 if user wins
-// 		return evaluate( counter, stateOfBoard );
-// 		// return evaluate( ( playersTurn === "Computer" ? playersCounter : getInverseCounter( playersCounter ) ), stateOfBoard );
-// 	}
-	
-// 	if( playersTurn==="Computer") {
-// 		currentBestScore= -100000; //this is the worst case for AI
-// 	}
-// 	else{
-// 		currentBestScore= +100000; //this is the worst case for Player
-// 	}
-	
-// 	availableMoves.forEach( function( aMove, i ) {
-// 		console.log( "Board at Depth: ", depth, " : ", counter );
-// 		console.log( stateOfBoard );
-	 
-// 		if( aMove === "X" || aMove === "O" || movesTried.indexOf( aMove ) >=0 ){
-// 			// if( stateOfBoard[i] === "X" || stateOfBoard[i] === "O") {
-// 			// these aren't legal as they are already taken so skip
-// 			return false;
-// 		 }
-// 		// record when we have tried a move so we don't try it again later
-// 		movesTried.push( aMove );
-// 		stateOfBoardAfterMove[ aMove ] = counter;
-// 		console.log( "Board after move: ", counter );
-// 		console.log( stateOfBoardAfterMove );
-// 		score=getFutureScoreOfMove(stateOfBoardAfterMove , depth+1, getInverseUser( playersTurn ), getInverseCounter(counter) );
-// 		if(playersTurn === "Computer" && score>currentBestScore) { //AI wants positive score
-// 			currentBestScore=score;
-// 			currentBestMove = aMove;
-// 		}
-// 		if( playersTurn === "Human" && score<currentBestScore) { //user wants          negative score
-// 			currentBestScore=score;
-// 			currentBestMove = aMove;
-// 		}
-// 		// remove counter from stateOfBoardAFterMove as we will try a different move if there are any available
-// 		stateOfBoardAfterMove[aMove] = aMove;
-// 	});
-	
-// 	console.log( "Best Score at Depth: ", depth, " ; CurrentBestMove: ", currentBestMove, "; CurrentBestScore: ", currentBestScore );
-// 	console.log( "************************************************");
-// 	return currentBestScore;
-// }
+
 function maxOfArray( array ) {
 	return Math.max.apply(null, array );
 }
@@ -248,7 +187,7 @@ module.exports = function( stateOfBoard, player, counter ){
 
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 		moves.push( aMove );
@@ -256,31 +195,27 @@ module.exports = function( stateOfBoard, player, counter ){
 	// Do the min or the max calculation
 	if( player === "Computer"){
 		//This is the max calculation
-		bestScore = maxOfArray( scores );
-		maxScoreIndex = scores.indexOf( bestScore );
+		maxScoreIndex = scores.indexOf( maxOfArray( scores ) );
 		bestMove = moves[maxScoreIndex];
 		return bestMove;
 	}
 	else {
 		//This is the min calculation
-		bestScore = minOfArray( scores );
-		minScoreIndex = scores.indexOf( bestScore );
+		minScoreIndex = scores.indexOf( minOfArray( scores ) );
 		bestMove = moves[minScoreIndex];
 		return bestMove;
 	}
 };
+
 function minimax ( depth, stateOfBoard, player, counter ) {
-// exports.minimax = function ( stateOfBoard, player, counter ) {
 	var stateOfBoardAfterMove = stateOfBoard;
+	var score, bestScore;
+	var scores = []; // an array of scores
 	var availableMoves = getAvailableMoves( stateOfBoard );
-	var countOfMoves = availableMoves.length;
-	var score, bestScore,  bestMove, maxScoreIndex, minScoreIndex;
-	var scores = [], // an array of scores
-		moves = [];  // an array of moves
+
 	if( gameOver( stateOfBoard, depth ) ) {
 		// return 1 if AI wins, 0 if draw, -1 if user wins
 		return getScore( stateOfBoard, depth );
-		// return evaluate( counter, stateOfBoard );
 	}
 	
 	++depth;
@@ -288,61 +223,22 @@ function minimax ( depth, stateOfBoard, player, counter ) {
 	//Populate the scores array, recursing as needed
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
-		score=/*exports.*/minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
+		score=minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
-		moves.push( aMove );
 	});
 	// Do the min or the max calculation
 	if( player === "Computer"){
 		//This is the max calculation
 		bestScore = maxOfArray( scores );
-		// maxScoreIndex = scores.indexOf( bestScore );
-		// bestMove = moves[maxScoreIndex];
 		return bestScore;
 	}
 	else {
 		//This is the min calculation
 		bestScore = minOfArray( scores );
-		// minScoreIndex = scores.indexOf( bestScore );
-		// bestMove = moves[minScoreIndex];
 		return bestScore;
 	}
 }
-
-// module.exports = function (currentStateOfBoard, computerPlayer, computerCounter ) {
-// 	var currentBestMove= null;
-// 	var score = null;
-// 	var currentBestScore= -100000;
-// 	var stateOfBoardAfterMove = currentStateOfBoard;
-// 	var availableMoves = getAvailableMoves( currentStateOfBoard );
-// 	availableMoves.forEach( function( aMove, i ) {
-
-// 		if( availableMoves[i] === "X" || availableMoves[i] === "O")         {
-// 				// these aren't legal as they are already taken so skip
-// 				return false;
-// 		}
-// 		console.log( "NEXT OPENING MOVE FOR COMPUTER: ", aMove );
-// 		stateOfBoardAfterMove[ aMove ] = computerCounter;
-// 		// console.log( "Board after move: ", computerPlayer );
-// 		// console.log( stateOfBoardAfterMove );
-// 		score=getFutureScoreOfMove(stateOfBoardAfterMove , 1/*depth*/,"Human", getInverseCounter( computerCounter ));
-		
-// 		if( score>=currentBestScore) {
-// 			console.log( "Current Best Score at Depth: 0 : ", score );
-// 			console.log( "lastMove: ", aMove );
-// 			console.log( "currentBestScore: ", currentBestScore );
-// 			currentBestMove=aMove;
-// 			currentBestScore=score;
-// 		}
-// 		stateOfBoardAfterMove[aMove] = aMove;
-// 	});
-// 	console.log( "OVERALL NEXT BEST MOVE FOR THE COMPUTER: ", currentBestMove );
-// 	return currentBestMove;
-// };
-
-
-// };
 },{}],2:[function(require,module,exports){
 var minimax = require( "./modules/minimax.js" );
 // adapt JS Array filter method to return the index instead of the value
@@ -439,8 +335,7 @@ Array.prototype.findValue = function (predicate) {
 		playCount      : 0,
 		board : [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
 
-		winningPositions : [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], 
-													[2,5,8],[2,4,6],[3,4,5],[6,7,8]],
+		winningPositions : [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], [2,5,8],[2,4,6],[3,4,5],[6,7,8]],
 
 		init: function ( player1, player2 ){
 			if( player1 !== undefined ){
