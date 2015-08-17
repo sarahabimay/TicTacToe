@@ -323,10 +323,18 @@ Array.prototype.findValue = function (predicate) {
 
 	// The computer player MODEL in the MVC
 	var computerPlayerModel = {
-		player1Type    : "",
-		currentPlayer  : player.PLAYER1, // start with player1
+		computerCounter    : "",
+
+		init : function( player1, player2 ) {
+			this.computerCounter = player1 === playerType.COMPUTER ? counter.X : player2 === playerType.COMPUTER ? counter.O : "";
+		},
+
+		generateComputerMove : function ( board ) {
+			return minimax( board, playerType.COMPUTER, this.computerCounter );
+		},
 		
 	};
+
 	// The board MODEL in the MVC
 	var boardGameModel = {
 		player1Type    : "",
@@ -335,7 +343,7 @@ Array.prototype.findValue = function (predicate) {
 		playCount      : 0,
 		board : [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
 
-		winningPositions : [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], [2,5,8],[2,4,6],[3,4,5],[6,7,8]],
+		winningPositions : [ [0,1,2],[0,4,8],[0,3,6],[1,4,7], [2,5,8],[2,4,6],[3,4,5],[6,7,8] ],
 
 		init: function ( player1, player2 ){
 			if( player1 !== undefined ){
@@ -348,8 +356,16 @@ Array.prototype.findValue = function (predicate) {
 			return this.player1Type === playerType.COMPUTER;
 		},
 
-		isValidPlayerType: function ( playerType ){
-			return (playerType === playerType.COMPUTER || playerType === playerType.HUMAN );
+		// isValidPlayerType: function ( playerType ){
+		// 	return (playerType === playerType.COMPUTER || playerType === playerType.HUMAN );
+		// },
+
+		resetGame: function() {
+			this.player1Type = "";
+			this.player2Type = "";
+			this.currentPlayer = player.PLAYER1;
+			this.playCount = 0;
+			this.board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		},
 
 		gameMode: function () {
@@ -370,13 +386,6 @@ Array.prototype.findValue = function (predicate) {
 				}
 			}
 		},
-		resetGame: function() {
-			this.player1Type = "";
-			this.player2Type = "";
-			this.currentPlayer = player.PLAYER1;
-			this.playCount = 0;
-			this.board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
-		},
 
 		isPositionEmpty: function ( position ) {
 			return ( this.board[ position ] === counter.X || this.board[ position ] === counter.O ) ? false : true;
@@ -384,20 +393,6 @@ Array.prototype.findValue = function (predicate) {
 
 		updateBoard: function ( position, counter ) {
 			this.board[ position ] = counter;
-		},
-
-		getCounter: function (){
-			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
-		},
-
-		getOpponentsCounter: function () {
-			return this.getCounter() === counter.X ? counter.O : counter.X;
-		},
-
-		findPlayerPositions: function ( counter ) {
-			return this.board.filterIndex( function( element, index ) {
-				return element === counter;
-			});
 		},
 
 		incPlayCount: function () {
@@ -409,13 +404,32 @@ Array.prototype.findValue = function (predicate) {
 			return this.currentPlayer;
 		},
 
-		getUnfilledSpaces: function () {
-			return board.filter( function( value, index) {
-				return ( value === counter.X || value === counter.O ) ? false : true;
+		found: function ( counter, position ){
+			return this.board[ position ] === counter;
+		},
+
+		playMove : function ( position ) {
+			this.updateBoard( position, this.getCounter() );
+			this.switchCurrentPlayer();
+			this.incPlayCount();
+			return this;
+		},
+
+		getCounter : function (){
+			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
+		},
+
+		getOpponentsCounter : function () {
+			return this.getCounter() === counter.X ? counter.O : counter.X;
+		},
+
+		findPlayerPositions : function ( counter ) {
+			return this.board.filterIndex( function( element, index ) {
+				return element === counter;
 			});
 		},
 
-		counterPlayedTwice: function ( counter ) {
+		isAWinPossible : function ( counter ) {
 			var userPlayCount = this.findPlayerPositions( counter ).length;
 			return userPlayCount >= 2;
 		},
@@ -437,43 +451,21 @@ Array.prototype.findValue = function (predicate) {
 		},
 		
 		blockUserPosition: function () {
-			if ( !this.counterPlayedTwice( this.getOpponentsCounter() ) ) return -1;
+			if ( !this.isAWinPossible( this.getOpponentsCounter() ) ) return -1;
 			return this.findWinningPosition( this.getOpponentsCounter() );
 		},
 
 		computerWinPosition: function () {
-			if( !this.counterPlayedTwice( this.getCounter() ) ) return -1;
+			if( !this.isAWinPossible( this.getCounter() ) ) return -1;
 			return this.findWinningPosition( this.getCounter() );
 		},
 
-		found: function ( counter, position ){
-			return this.board[ position ] === counter;
-		},
-
-		getNextPosition: function (){
-			// Get a Computer player's next move.
-			// The Computer should win or draw but never lose.
-			var position = -1;
-
-			position = minimax( this.board, playerType.COMPUTER, this.getCounter() );
-	
-			return position;	
-		},
-
-		generateComputerMove : function () {
+		checkForAWinningPosition : function() {
 			var position = this.computerWinPosition();
 			if( position >= 0 && position<9 ) { return position; }
 			position = this.blockUserPosition();
 			if( position >= 0 && position<9 ) { return position; } 
-
-			return this.getNextPosition();
-		},
-
-		playMove : function ( position ) {
-			this.updateBoard( position, this.getCounter() );
-			this.switchCurrentPlayer();
-			this.incPlayCount();
-			return this;
+			return position;
 		},
 
 		found3InARow: function ( counter ) {
@@ -572,23 +564,21 @@ Array.prototype.findValue = function (predicate) {
 			gameView.init();
 		},
 
-		startGame: function ( player1, player2) {
+		startGame : function ( player1, player2) {
 
 			boardGameModel.init( player1, player2 );
-			// player1 and player2 model: ??
-
+			computerPlayerModel.init( player1, player2 );
 			gameView.renderNewGame( player1, player2 );
-			// if( player1Model.isComputer() ) ...
 			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
 		},
 
-		resetGame: function () {
+		resetGame : function () {
 			boardGameModel.resetGame();
 			gameView.resetGame();
 		},
 
 		playMove : function ( position ) {
-			gameView.updateBoard( /*player1Model.getCounter()*/boardGameModel.getCounter(), position );
+			gameView.updateBoard( boardGameModel.getCounter(), position );
 			return boardGameModel.playMove( position );
 		},
 
@@ -603,8 +593,15 @@ Array.prototype.findValue = function (predicate) {
 				gameView.enableBoard();
 			}
 		},
-		computerMove : function (/*player1Model*/) {
-			return this.playMove( boardGameModel.generateComputerMove() );	
+
+		getComputerNextMove : function () {
+			var position = boardGameModel.checkForAWinningPosition();
+			if( position >= 0 ) return position;
+			return computerPlayerModel.generateComputerMove( boardGameModel.board );
+		},
+
+		computerMove : function () {
+			return this.playMove( this.getComputerNextMove() );	
 		},
 
 		gameOver : function () {
@@ -629,6 +626,7 @@ Array.prototype.findValue = function (predicate) {
 	window.boardGameModel = boardGameModel;
 	window.gameView = gameView;
 	window.gameController = gameController;
+	window.computerPlayerModel = computerPlayerModel;
 	gameController.init();
 })();
 
