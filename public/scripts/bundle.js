@@ -35,21 +35,12 @@ function getInverseCounter ( counter ) {
 	return counter === "X" ? "O" : "X";
 }
 
-function pointsWon ( playersTurn ) {
-	return playersTurn === "Computer" ? 1 : -1;
-}
-
 function getAvailableMoves ( currentStateOfBoard ){
 	return currentStateOfBoard.filter( function( e, i ) {
 			return e !== "X" && e !== "O" ;
 	});
 }
 
-function findPlayerPositions ( counter, board ) {
-	return board.filterIndex( function( element, index ) {
-		return element === counter;
-	});
-}
 function found ( counter, position, stateOfBoard ){
 	return stateOfBoard[ position ] === counter;
 }
@@ -62,19 +53,16 @@ function found3InARow ( counter, stateOfBoard ) {
 		},this);
 	},this);
 
-	if( results.length ) {
-		return true;
-	}
-	return false; 
+	return results.length > 0 ? true : false;
 }
 function gameOver ( stateOfBoard ) {
-	
+	var availMoves = [];
 	if( found3InARow( "X", stateOfBoard ) || found3InARow( "O", stateOfBoard ) ) {
 		return true;
 	}
 	else {
-			var availMoves = getAvailableMoves( stateOfBoard );
-			return availMoves.length === 0;
+		availMoves = getAvailableMoves( stateOfBoard );
+		return availMoves.length === 0;
 	}
 }
 
@@ -417,55 +405,6 @@ Array.prototype.findValue = function (predicate) {
 			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
 		},
 
-		getOpponentsCounter : function () {
-			return this.getCounter() === counter.X ? counter.O : counter.X;
-		},
-
-		findPlayerPositions : function ( counter ) {
-			return this.board.filterIndex( function( element, index ) {
-				return element === counter;
-			});
-		},
-
-		isAWinPossible : function ( counter ) {
-			var userPlayCount = this.findPlayerPositions( counter ).length;
-			return userPlayCount >= 2;
-		},
-
-		findPossibleWin : function( playerPositions ) {
-			return this.winningPositions.findValue( function( e ) {
-        var foundCount = e.filter( function(elem) {
-            return playerPositions.indexOf( elem ) < 0;
-        });
-        
-        return ( foundCount.length === 1 && this.isPositionEmpty( foundCount[0])) ? foundCount[0] : undefined;
-    	}, this);
-		},
-
-		findWinningPosition: function ( counter ) {
-			var position = -1;
-			var counterIndexes = this.findPlayerPositions ( counter );
-			return ( counterIndexes.length <= 1 ) ? position : this.findPossibleWin( counterIndexes );
-		},
-		
-		blockUserPosition: function () {
-			if ( !this.isAWinPossible( this.getOpponentsCounter() ) ) return -1;
-			return this.findWinningPosition( this.getOpponentsCounter() );
-		},
-
-		computerWinPosition: function () {
-			if( !this.isAWinPossible( this.getCounter() ) ) return -1;
-			return this.findWinningPosition( this.getCounter() );
-		},
-
-		checkForAWinningPosition : function() {
-			var position = this.computerWinPosition();
-			if( position >= 0 && position<9 ) { return position; }
-			position = this.blockUserPosition();
-			if( position >= 0 && position<9 ) { return position; } 
-			return position;
-		},
-
 		generateComputerMove : function () {
 			return minimax( this.board, playerType.COMPUTER, this.getCounter() );
 		},
@@ -596,13 +535,8 @@ Array.prototype.findValue = function (predicate) {
 			}
 		},
 
-		getComputerNextMove : function () {
-			var position = boardGameModel.checkForAWinningPosition();
-			return ( position >= 0 ) ? position : boardGameModel.generateComputerMove();
-		},
-
 		playComputerMove : function () {
-			return this.playMove( this.getComputerNextMove() );	
+			return this.playMove( boardGameModel.generateComputerMove() );	
 		},
 
 		gameOver : function () {
