@@ -80,18 +80,18 @@ Array.prototype.findValue = function (predicate) {
 	};
 
 	// The computer player MODEL in the MVC
-	var computerPlayerModel = {
-		computerCounter    : "",
+	// var computerPlayerModel = {
+	// 	computerCounter    : "",
 
-		init : function( player1, player2 ) {
-			this.computerCounter = player1 === playerType.COMPUTER ? counter.X : player2 === playerType.COMPUTER ? counter.O : "";
-		},
+	// 	init : function( player1, player2 ) {
+	// 		this.computerCounter = player1 === playerType.COMPUTER ? counter.X : player2 === playerType.COMPUTER ? counter.O : "";
+	// 	},
 
-		generateComputerMove : function ( board ) {
-			return minimax( board, playerType.COMPUTER, this.computerCounter );
-		},
+	// 	generateComputerMove : function ( board ) {
+	// 		return minimax( board, playerType.COMPUTER, this.computerCounter );
+	// 	},
 		
-	};
+	// };
 
 	// The board MODEL in the MVC
 	var boardGameModel = {
@@ -113,10 +113,6 @@ Array.prototype.findValue = function (predicate) {
 		isPlayer1Computer: function () {
 			return this.player1Type === playerType.COMPUTER;
 		},
-
-		// isValidPlayerType: function ( playerType ){
-		// 	return (playerType === playerType.COMPUTER || playerType === playerType.HUMAN );
-		// },
 
 		resetGame: function() {
 			this.player1Type = "";
@@ -271,7 +267,6 @@ Array.prototype.findValue = function (predicate) {
 	};
 
 	var gameController = {
-	
 
 		init: function () {
 			gameView.init();
@@ -311,7 +306,6 @@ Array.prototype.findValue = function (predicate) {
 		},
 
 		playComputerMove : function () {
-			var self = this;
 			return this.playMove( boardGameModel.generateComputerMove() );	
 		},
 
@@ -334,10 +328,11 @@ Array.prototype.findValue = function (predicate) {
 			}
 		}
 	};
+	// this is needed for Qunit testing
 	window.boardGameModel = boardGameModel;
 	window.gameView = gameView;
 	window.gameController = gameController;
-	window.computerPlayerModel = computerPlayerModel;
+	// window.computerPlayerModel = computerPlayerModel;
 	gameController.init();
 })();
 
