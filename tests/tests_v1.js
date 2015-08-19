@@ -1,5 +1,3 @@
-
-
 test( "check model, view, controller objects exist" , function( assert) {
 	ok( boardGameModel, "Found board model" );
 	ok( gameView, "Found game view" );
@@ -36,7 +34,7 @@ test( "check start over button reset's the board model", function( assert ) {
 	// check view  such that stateofplay has style='display: none'
 	// check players model such that they are undefined 
 });
-/*
+
 module( "test minimax game scenario 1");
 test( "next game starting with 4 moves", function( assert ) { 
 	var board = [ 0 ,1,"X","X",4,5,6,"O","O"];
@@ -81,7 +79,7 @@ test( "user makes a mistake and computer should be able to win", function( asser
 	var nextPosition = minimax( board, "Computer", "O" );
 	equal( nextPosition, 3, "result should be position 3 to win");
 });
-*/
+
 
 // opponent goes first
 // module( "test computer prolongs play by choosing the longest win or draw game" );
