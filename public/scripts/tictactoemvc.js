@@ -226,6 +226,10 @@ Array.prototype.findValue = function (predicate) {
 			return position;
 		},
 
+		generateComputerMove : function () {
+			return minimax( this.board, playerType.COMPUTER, this.getCounter() );
+		},
+
 		found3InARow: function ( counter ) {
 			var results = this.winningPositions.filter( function( element ) {
 				return element.every( function( e ){
@@ -325,7 +329,7 @@ Array.prototype.findValue = function (predicate) {
 		startGame : function ( player1, player2) {
 
 			boardGameModel.init( player1, player2 );
-			computerPlayerModel.init( player1, player2 );
+			// computerPlayerModel.init( player1, player2 );
 			gameView.renderNewGame( player1, player2 );
 			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
 		},
@@ -341,7 +345,7 @@ Array.prototype.findValue = function (predicate) {
 		},
 
 		computerGame : function () {
-			if( this.computerMove().isGameOver() ) {
+			if( this.playComputerMove().isGameOver() ) {
 				this.gameOver();
 			}
 			else if( boardGameModel.gameMode() === gameMode.CVC ){
@@ -354,11 +358,10 @@ Array.prototype.findValue = function (predicate) {
 
 		getComputerNextMove : function () {
 			var position = boardGameModel.checkForAWinningPosition();
-			if( position >= 0 ) return position;
-			return computerPlayerModel.generateComputerMove( boardGameModel.board );
+			return ( position >= 0 ) ? position : boardGameModel.generateComputerMove();
 		},
 
-		computerMove : function () {
+		playComputerMove : function () {
 			return this.playMove( this.getComputerNextMove() );	
 		},
 

@@ -62,10 +62,6 @@ function found3InARow ( counter, stateOfBoard ) {
 	},this);
 
 	if( results.length ) {
-		if( counter === "O"){
-			console.log( "O win");
-		}
-		console.log( "!!!!!!!!!! ", counter, " IS THE WINNER!!!!!!!!!!!!");
 		return true;
 	}
 	return false; 
@@ -77,7 +73,6 @@ function gameOver ( stateOfBoard ) {
 	}
 	else {
 			var availMoves = getAvailableMoves( stateOfBoard );
-		 // console.log( "In gameOver: AvailableMoves: ", availMoves );
 			return availMoves.length === 0;
 	}
 }
@@ -195,7 +190,10 @@ module.exports = function( stateOfBoard, player, counter ){
 	if( player === "Computer"){
 		//This is the max calculation
 		maxScoreIndex = scores.indexOf( maxOfArray( scores ) );
+		console.log( "Scores: ", scores );
+		console.log( "Moves: ", moves );
 		bestMove = moves[maxScoreIndex];
+		console.log( "Computer's Best Next Move: ", bestMove );
 		return bestMove;
 	}
 	else {
