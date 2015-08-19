@@ -280,7 +280,6 @@ Array.prototype.findValue = function (predicate) {
 		startGame : function ( player1, player2) {
 
 			boardGameModel.init( player1, player2 );
-			// computerPlayerModel.init( player1, player2 );
 			gameView.renderNewGame( player1, player2 );
 			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
 		},
@@ -291,23 +290,28 @@ Array.prototype.findValue = function (predicate) {
 		},
 
 		playMove : function ( position ) {
+			var self = this;
 			gameView.updateBoard( boardGameModel.getCounter(), position );
 			return boardGameModel.playMove( position );
 		},
 
 		computerGame : function () {
-			if( this.playComputerMove().isGameOver() ) {
-				this.gameOver();
-			}
-			else if( boardGameModel.gameMode() === gameMode.CVC ){
-				this.computerGame();
-			}
-			else {
-				gameView.enableBoard();
-			}
+			var self = this;
+			setTimeout( function() { 
+				if( self.playComputerMove().isGameOver() ) {
+					self.gameOver();
+				}
+				else if( boardGameModel.gameMode() === gameMode.CVC ){
+					self.computerGame();
+				}
+				else {
+					gameView.enableBoard();
+				}
+			}, 1000 ); 
 		},
 
 		playComputerMove : function () {
+			var self = this;
 			return this.playMove( boardGameModel.generateComputerMove() );	
 		},
 
