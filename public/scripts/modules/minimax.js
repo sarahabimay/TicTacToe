@@ -34,21 +34,12 @@ function getInverseCounter ( counter ) {
 	return counter === "X" ? "O" : "X";
 }
 
-function pointsWon ( playersTurn ) {
-	return playersTurn === "Computer" ? 1 : -1;
-}
-
 function getAvailableMoves ( currentStateOfBoard ){
 	return currentStateOfBoard.filter( function( e, i ) {
 			return e !== "X" && e !== "O" ;
 	});
 }
 
-function findPlayerPositions ( counter, board ) {
-	return board.filterIndex( function( element, index ) {
-		return element === counter;
-	});
-}
 function found ( counter, position, stateOfBoard ){
 	return stateOfBoard[ position ] === counter;
 }
@@ -61,19 +52,16 @@ function found3InARow ( counter, stateOfBoard ) {
 		},this);
 	},this);
 
-	if( results.length ) {
-		return true;
-	}
-	return false; 
+	return results.length > 0 ? true : false;
 }
 function gameOver ( stateOfBoard ) {
-	
+	var availMoves = [];
 	if( found3InARow( "X", stateOfBoard ) || found3InARow( "O", stateOfBoard ) ) {
 		return true;
 	}
 	else {
-			var availMoves = getAvailableMoves( stateOfBoard );
-			return availMoves.length === 0;
+		availMoves = getAvailableMoves( stateOfBoard );
+		return availMoves.length === 0;
 	}
 }
 
