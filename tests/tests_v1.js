@@ -27,7 +27,17 @@ test( "select human v coputer and click play'", function( assert ) {
 	deepEqual( playerText, "Player2: Computer", "Player2 field should be COmputer" );
 	notOk( boardGameModel.isPlayer1Computer(), "Player 1 is NOT the computer" );
 });
-
+test( "select human v human and click play'", function( assert ) {
+	boardGameModel.init( "Human", "Human" );
+	equal( boardGameModel.player1Type, "Human", "model player1Type is Human");
+	equal( boardGameModel.player2Type, "Human", "model player1Type is Human");
+	gameView.renderNewGame("Human", "Human" );
+	var playerText = $("#p1Text").text().trim();
+	deepEqual( playerText, "Player1: Human", "Player1 field should be Human" );
+	playerText = $("#p2Text").text().trim();
+	deepEqual( playerText, "Player2: Human", "Player2 field should be Human" );
+	notOk( boardGameModel.isPlayer1Computer(), "Player 1 is NOT the computer" );
+});
 test( "check start over button reset's the board model", function( assert ) {
 	gameController.resetGame();
 	deepEqual( boardGameModel.board, [0,1,2,3,4,5,6,7,8], "board reset so should be empty");
