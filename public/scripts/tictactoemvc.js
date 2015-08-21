@@ -80,18 +80,32 @@ Array.prototype.findValue = function (predicate) {
 	};
 
 	// The computer player MODEL in the MVC
-	// var computerPlayerModel = {
-	// 	computerCounter    : "",
+	var computerPlayerModel = {
+		computerCounter    : "",
+		playerPosition	   : "",
 
-	// 	init : function( player1, player2 ) {
-	// 		this.computerCounter = player1 === playerType.COMPUTER ? counter.X : player2 === playerType.COMPUTER ? counter.O : "";
-	// 	},
+		init : function ( player1, player2 ) {
+			if( player1 === playerType.COMPUTER ) {
+				this.computerCounter = counter.X;
+				this.playerPosition = player.PLAYER1;
+			}
+			else if( player2 === playerType.COMPUTER ){
+				this.computerCounter = counter.O;
+				this.playerPosition = player.PLAYER2;	
+			}
+		},
+		isPlayer1 : function () {
+			return this.playerPosition === player.PLAYER1;
+		},
 
-	// 	generateComputerMove : function ( board ) {
-	// 		return minimax( board, playerType.COMPUTER, this.computerCounter );
-	// 	},
+		validCounter : function ( aCounter ) {
+			return aCounter === counter.X || aCounter === counter.O;
+		},
+		generateComputerMove : function ( board ) {
+			return this.validCounter( this.computerCounter ) ? minimax( board, playerType.COMPUTER, this.computerCounter ) : -1;
+		},
 		
-	// };
+	};
 
 	// The board MODEL in the MVC
 	var boardGameModel = {
@@ -108,10 +122,6 @@ Array.prototype.findValue = function (predicate) {
 				this.player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
 				this.player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
 			}
-		},
-
-		isPlayer1Computer: function () {
-			return this.player1Type === playerType.COMPUTER;
 		},
 
 		resetGame: function() {
@@ -171,10 +181,6 @@ Array.prototype.findValue = function (predicate) {
 
 		getCounter : function (){
 			return this.currentPlayer ? (this.currentPlayer === player.PLAYER1 ? counter.X : counter.O) : counter.X;
-		},
-
-		generateComputerMove : function () {
-			return minimax( this.board, playerType.COMPUTER, this.getCounter() );
 		},
 
 		found3InARow: function ( counter ) {
@@ -273,10 +279,10 @@ Array.prototype.findValue = function (predicate) {
 		},
 
 		startGame : function ( player1, player2) {
-
 			boardGameModel.init( player1, player2 );
+			computerPlayerModel.init( player1, player2 );
 			gameView.renderNewGame( player1, player2 );
-			boardGameModel.isPlayer1Computer() ? this.computerGame() : gameView.enableBoard();
+			computerPlayerModel.isPlayer1() ? this.computerGame() : gameView.enableBoard();
 		},
 
 		resetGame : function () {
@@ -306,7 +312,7 @@ Array.prototype.findValue = function (predicate) {
 		},
 
 		playComputerMove : function () {
-			return this.playMove( boardGameModel.generateComputerMove() );	
+			return this.playMove( computerPlayerModel.generateComputerMove( boardGameModel.board ) );	
 		},
 
 		gameOver : function () {
