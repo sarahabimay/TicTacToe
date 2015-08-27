@@ -158,12 +158,10 @@ function minOfArray( array ) {
 module.exports = function( stateOfBoard, player, counter ){
 	var stateOfBoardAfterMove = stateOfBoard;
 	var score, bestScore,  bestMove, maxScoreIndex, minScoreIndex;
-
-	var scores = [], // an array of scores
-		moves = [];  // an array of moves
-
-	var availableMoves = getAvailableMoves( stateOfBoard );
 	var depth = 0;
+	var scores = [], 
+		 moves = [];  
+	var availableMoves = getAvailableMoves( stateOfBoard );
 
 	computerCounter = counter;
 
@@ -174,9 +172,7 @@ module.exports = function( stateOfBoard, player, counter ){
 		scores.push(score);
 		moves.push( aMove );
 	});
-	// Do the min or the max calculation
 	if( player === "Computer"){
-		//This is the max calculation
 		maxScoreIndex = scores.indexOf( maxOfArray( scores ) );
 		console.log( "Scores: ", scores );
 		console.log( "Moves: ", moves );
@@ -185,7 +181,6 @@ module.exports = function( stateOfBoard, player, counter ){
 		return bestMove;
 	}
 	else {
-		//This is the min calculation
 		minScoreIndex = scores.indexOf( minOfArray( scores ) );
 		bestMove = moves[minScoreIndex];
 		return bestMove;
@@ -205,7 +200,6 @@ function minimax ( depth, stateOfBoard, player, counter ) {
 	
 	++depth;
 
-	//Populate the scores array, recursing as needed
 	availableMoves.forEach( function( aMove, i ) {
 		stateOfBoardAfterMove[ aMove ] = counter;
 		score=minimax(depth, stateOfBoardAfterMove, getInverseUser( player ), getInverseCounter(counter) );
@@ -214,12 +208,10 @@ function minimax ( depth, stateOfBoard, player, counter ) {
 	});
 	// Do the min or the max calculation
 	if( player === "Computer"){
-		//This is the max calculation
 		bestScore = maxOfArray( scores );
 		return bestScore;
 	}
 	else {
-		//This is the min calculation
 		bestScore = minOfArray( scores );
 		return bestScore;
 	}

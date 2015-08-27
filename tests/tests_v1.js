@@ -314,3 +314,10 @@ test( "opp takes top right corner and computer takes bottom row edge", function(
 	var nextPosition = minimax( board, "Computer", "O" );
 	equal( nextPosition, 8, "result should be position 8 to tie");
 });
+
+module( "test minimax - 14");
+test( "computer blocks", function( assert ) { 
+	var board = [ "X", 1, "O", "X", 4, 5, 6, 7, 8 ];
+	var nextPosition = minimax( board, "Computer", "O" );
+	equal( nextPosition, 6, "result should be position 6 to tie");
+});
