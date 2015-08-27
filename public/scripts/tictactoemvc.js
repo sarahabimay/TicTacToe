@@ -81,21 +81,30 @@ Array.prototype.findValue = function (predicate) {
 
 	// The computer player MODEL in the MVC
 	var computerPlayerModel = {
-		playerPosition	   : "",
+		// playerPosition	   : "",
+		player1IsComputer  : false,
+		player2IsComputer  : false,
 
 		init : function ( player1, player2 ) {
 			var computer = this;
-			if( player1 === playerType.COMPUTER ) {
-				computer.playerPosition = player.PLAYER1;
-			}
-			else if( player2 === playerType.COMPUTER ){
-				computer.playerPosition = player.PLAYER2;	
-			}
+			computer.player1IsComputer = player1 === playerType.COMPUTER;
+			computer.player2IsComputer = player2 === playerType.COMPUTER;
+		},
+
+		resetGame : function () {
+			var computer = this;
+			this.player1IsComputer = false;
+			this.player2IsComputer = false;
+		},
+
+		isComputerPlaying : function() {
+			var computer = this;
+			return computer.player1IsComputer || computer.player2IsComputer;
 		},
 
 		isPlayer1 : function () {
 			var computer = this;
-			return computer.playerPosition === player.PLAYER1;
+			return computer.player1IsComputer;
 		},
 
 		validCounter : function ( aCounter ) {
@@ -305,6 +314,7 @@ Array.prototype.findValue = function (predicate) {
 
 		resetGame : function () {
 			boardGameModel.resetGame();
+			computerPlayerModel.resetGame();
 			gameView.resetGame();
 		},
 
@@ -357,7 +367,7 @@ Array.prototype.findValue = function (predicate) {
 	window.boardGameModel = boardGameModel;
 	window.gameView = gameView;
 	window.gameController = gameController;
-	// window.computerPlayerModel = computerPlayerModel;
+	window.computerPlayerModel = computerPlayerModel;
 	gameController.init();
 })();
 

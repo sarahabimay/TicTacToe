@@ -4,6 +4,7 @@ test( "check model, view, controller objects exist" , function( assert) {
 	ok( gameController, "Found controller" );
 });
 
+module( "testing initialization and game reset")
 test( "check the board has been reset and is 'empty'", function( assert ) {
 	gameController.init();
 	ok( boardGameModel.board, "Found board model's board array" );
@@ -16,46 +17,109 @@ test( "check the board has been reset and is 'empty'", function( assert ) {
 	deepEqual( playerText, "Player2:", "Player2 field should be blank" );
 });
 
-test( "select human v coputer and click play'", function( assert ) {
+test( "board model state is correct for human v computer game", function( assert ) {
 	boardGameModel.init( "Human", "Computer" );
 	equal( boardGameModel.player1Type, "Human", "model player1Type is Human");
 	equal( boardGameModel.player2Type, "Computer", "model player1Type is Computer" );
+});
+
+test( "view state is correct for human v computer game", function( assert ) {
 	gameView.renderNewGame("Human", "Computer" );
 	var playerText = $("#p1Text").text().trim();
 	deepEqual( playerText, "Player1: Human", "Player1 field should be Human" );
 	playerText = $("#p2Text").text().trim();
-	deepEqual( playerText, "Player2: Computer", "Player2 field should be COmputer" );
-	notOk( boardGameModel.isPlayer1Computer(), "Player 1 is NOT the computer" );
+	deepEqual( playerText, "Player2: Computer", "Player2 field should be COoputer" );
+	// notOk( boardGameModel.player1Type === "Computer", "Player 1 is NOT the computer" );
+	// ok( boardGameModel.player2Type === "Computer", "Player 2 is the computer" );
 });
-test( "select human v human and click play'", function( assert ) {
+test( "board model state is correct for human v human game", function( assert ) {
 	boardGameModel.init( "Human", "Human" );
 	equal( boardGameModel.player1Type, "Human", "model player1Type is Human");
 	equal( boardGameModel.player2Type, "Human", "model player1Type is Human");
+});
+test( "view state is correct for human v human game", function( assert ) {
 	gameView.renderNewGame("Human", "Human" );
 	var playerText = $("#p1Text").text().trim();
 	deepEqual( playerText, "Player1: Human", "Player1 field should be Human" );
 	playerText = $("#p2Text").text().trim();
 	deepEqual( playerText, "Player2: Human", "Player2 field should be Human" );
-	notOk( boardGameModel.isPlayer1Computer(), "Player 1 is NOT the computer" );
 });
-test( "check start over button reset's the board model", function( assert ) {
+
+test( "computer model is created for Human v Computer game", function( assert ) {
+	computerPlayerModel.init( "Human", "Computer" );
+	ok( computerPlayerModel.isComputerPlaying(), "A computer player should be in the game" );
+	notOk( computerPlayerModel.isPlayer1(), "Player1 is NOT the computer" );
+	ok( computerPlayerModel.player2IsComputer, "Player 2 is the computer" );
+});
+
+test( "computer model is created for Computer v Computer game", function( assert ) {
+	computerPlayerModel.init( "Computer", "Computer" );
+	ok( computerPlayerModel.isComputerPlaying(), "A computer player should be in the game" );
+	ok( computerPlayerModel.isPlayer1(), "Player1 is a computer" );
+	ok( computerPlayerModel.player2IsComputer, "Player 2 is also a computer" );
+
+});
+test( "start over button reset's the board, computer model and the view", function( assert ) {
 	gameController.resetGame();
 	deepEqual( boardGameModel.board, [0,1,2,3,4,5,6,7,8], "board reset so should be empty");
+	notOk( computerPlayerModel.isComputerPlaying(), "computer should not be playing once reset" );
+	var playerText = $("#p1Text").text().trim();
+	deepEqual( playerText, "Player1:", "Player1 field should be blank" );
+	playerText = $("#p2Text").text().trim();
+	deepEqual( playerText, "Player2:", "Player2 field should be blank" );
 	// check view  such that stateofplay has style='display: none'
 	// check players model such that they are undefined 
 });
 
-module( "test minimax game scenario 1");
+module( "test boardGameModel helper functions");
+test( "Human v Human game has mode HVH", function ( assert ) {
+	boardGameModel.init( "Human", "Human" );
+	equal( boardGameModel.gameMode(), "HvH", "GameMode should be HvH");
+});
+test( "Human v Computer game has mode HVC", function ( assert ) {
+boardGameModel.init( "Human", "Computer" );
+	equal( boardGameModel.gameMode(), "HvC", "GameMode should be HvC");
+});
+test( "Computer v Human game has mode HVC", function ( assert ) {
+boardGameModel.init( "Computer", "Human" );
+	equal( boardGameModel.gameMode(), "HvC", "GameMode should be HvC");
+});
+test( "Computer v Computer game has mode CVC", function ( assert ) {
+	boardGameModel.init( "Computer", "Computer" );
+	equal( boardGameModel.gameMode(), "CvC", "GameMode should be CvC");
+});
+
+test( "board has been updated correctly after move", function ( assert ) {
+	boardGameModel.init( "Human", "Human" );
+	boardGameModel.updateBoard( 0, "X" );
+	deepEqual( boardGameModel.board, ["X",1,2,3,4,5,6,7,8], "X counter in position 0");
+});
+test( "isPositionEmpty() returns true if counter is already there", function ( assert ) {
+	boardGameModel.init( "Human", "Human" );
+	boardGameModel.updateBoard( 0, "X" );
+	notOk( boardGameModel.isPositionEmpty( 0 ), "Position 0 already filled" );
+});
+test( "found3InARow finds a win", function (asset) {
+	boardGameModel.init( "Human", "Human" );
+	boardGameModel.updateBoard( 0, "X" );
+	boardGameModel.updateBoard( 4, "X" );
+	boardGameModel.updateBoard( 8, "X" );
+	ok( boardGameModel.found3InARow( "X"), "Found a win for X");
+
+});
+module( "test computerPlayerModel::generateComputerMove with game scenario 1");
 test( "next game starting with 4 moves", function( assert ) { 
 	var board = [ 0 ,1,"X","X",4,5,6,"O","O"];
-	var nextPosition = minimax( board, "Computer", "X" );
+	var counter = "X";
+	var nextPosition = computerPlayerModel.generateComputerMove( board, "X" );
 	equal( nextPosition, 6, "result should be position 6");
 });
 test( "next game starting with 6 moves", function( assert ) { 
 	var board = [ "O" ,1,"X","X",4,5,"X","O","O"];
-	var nextPosition = minimax( board, "Computer", "X" );
+	var nextPosition = computerPlayerModel.generateComputerMove( board, "X" );
 	equal( nextPosition, 4, "result should be position 4");
 });
+
 module( "test minimax game scenario 2");
 test( "next game starting with 1 move", function( assert ) { 
 	var board = [ 0 ,1, 2, 3, 4, 5, 6, 7, "X" ];
