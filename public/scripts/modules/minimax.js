@@ -43,26 +43,29 @@ function getAvailableMoves ( currentStateOfBoard ){
 function found ( counter, position, stateOfBoard ){
 	return stateOfBoard[ position ] === counter;
 }
+
+function noMovesRemain ( stateOfBoard ) {
+	var remainingMoves = getAvailableMoves( stateOfBoard );
+	return remainingMoves.length === 0;
+}
+
 function found3InARow ( counter, stateOfBoard ) {
-	// this could be improved to use the 'winningPositions' array
+	var self = this;
 	var winningPositions = [ [0,1,2],[0,4,8],[0,3,6],[1,4,7],[2,5,8],[2,4,6],[3,4,5],[6,7,8]];
 	var results = winningPositions.filter( function( element ) {
 		return element.every( function( e ){
 			return found( counter, e, stateOfBoard );
-		},this);
-	},this);
+		},self);
+	},self);
 
 	return results.length > 0 ? true : false;
 }
+
 function gameOver ( stateOfBoard ) {
-	var availMoves = [];
 	if( found3InARow( "X", stateOfBoard ) || found3InARow( "O", stateOfBoard ) ) {
 		return true;
 	}
-	else {
-		availMoves = getAvailableMoves( stateOfBoard );
-		return availMoves.length === 0;
-	}
+	return noMovesRemain( stateOfBoard );
 }
 
 function evaluate ( counter, board ) {
@@ -190,11 +193,10 @@ module.exports = function( stateOfBoard, player, counter ){
 function minimax ( depth, stateOfBoard, player, counter ) {
 	var stateOfBoardAfterMove = stateOfBoard;
 	var score, bestScore;
-	var scores = []; // an array of scores
+	var scores = []; 
 	var availableMoves = getAvailableMoves( stateOfBoard );
 
 	if( gameOver( stateOfBoard, depth ) ) {
-		// return 1 if AI wins, 0 if draw, -1 if user wins
 		return getScore( stateOfBoard, depth );
 	}
 	
@@ -206,7 +208,6 @@ function minimax ( depth, stateOfBoard, player, counter ) {
 		stateOfBoardAfterMove[aMove] = aMove;
 		scores.push(score);
 	});
-	// Do the min or the max calculation
 	if( player === "Computer"){
 		bestScore = maxOfArray( scores );
 		return bestScore;
