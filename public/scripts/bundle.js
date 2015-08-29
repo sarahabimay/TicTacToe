@@ -347,8 +347,6 @@ Array.prototype.findValue = function (predicate) {
 
 		resetGame: function() {
 			var board = this;
-			board.player1Type = "";
-			board.player2Type = "";
 			board.currentCounter = Counter.X;
 			board.board = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 		},
