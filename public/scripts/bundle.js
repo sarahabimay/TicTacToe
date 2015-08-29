@@ -273,26 +273,21 @@ Array.prototype.findValue = function (predicate) {
 
 (function() {
 
+	var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
+
 	var Counter = {
 		X : "X",
 		O : "O"
 	};
-
-	var romans = [ "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" ];
 
 	var GameMode = {
 		HVC : "HvC",
 		HVH : "HvH",
 		CVC : "CvC"
 	};
-	var playerType = {
+	var PlayerType = {
 		COMPUTER : "Computer",
 		HUMAN : "Human",
-	};
-
-	var player = {
-		PLAYER1 : "player1",
-		PLAYER2 : "player2"
 	};
 
 	// The computer player MODEL in the MVC
@@ -302,8 +297,8 @@ Array.prototype.findValue = function (predicate) {
 
 		init : function ( player1, player2 ) {
 			var computer = this;
-			computer.player1IsComputer = player1 === playerType.COMPUTER;
-			computer.player2IsComputer = player2 === playerType.COMPUTER;
+			computer.player1IsComputer = player1 === PlayerType.COMPUTER;
+			computer.player2IsComputer = player2 === PlayerType.COMPUTER;
 		},
 
 		resetGame : function () {
@@ -328,7 +323,7 @@ Array.prototype.findValue = function (predicate) {
 
 		generateComputerMove : function ( board, currentCounter ) {
 			var computer = this;
-			return computer.validCounter( currentCounter ) ? minimax( board, playerType.COMPUTER, currentCounter ) : -1;
+			return computer.validCounter( currentCounter ) ? minimax( board, PlayerType.COMPUTER, currentCounter ) : -1;
 		},
 		
 	};
@@ -346,8 +341,8 @@ Array.prototype.findValue = function (predicate) {
 			var board = this;
 			var player1Type = "", player2Type = "";
 			if( player1 !== undefined ){
-				player1Type = ( player1 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
-				player2Type = ( player2 === playerType.COMPUTER )? playerType.COMPUTER : playerType.HUMAN ;
+				player1Type = ( player1 === PlayerType.COMPUTER )? PlayerType.COMPUTER : PlayerType.HUMAN ;
+				player2Type = ( player2 === PlayerType.COMPUTER )? PlayerType.COMPUTER : PlayerType.HUMAN ;
 			}
 			board.gameMode = board.setGameMode( player1Type, player2Type );
 		},
@@ -362,19 +357,19 @@ Array.prototype.findValue = function (predicate) {
 
 		setGameMode: function ( player1Type, player2Type ) {
 			var board = this;
-			if( player1Type === playerType.HUMAN ) {
-				if( player2Type === playerType.HUMAN) {
+			if( player1Type === PlayerType.HUMAN ) {
+				if( player2Type === PlayerType.HUMAN) {
 					return GameMode.HVH;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( player2Type === PlayerType.COMPUTER ) {
 					return GameMode.HVC;
 				}
 			}
 			else {
-				if( player2Type === playerType.HUMAN) {
+				if( player2Type === PlayerType.HUMAN) {
 					return GameMode.HVC;
 				}
-				else if( player2Type === playerType.COMPUTER ) {
+				else if( player2Type === PlayerType.COMPUTER ) {
 					return GameMode.CVC;
 				}
 			}
