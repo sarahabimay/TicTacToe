@@ -330,8 +330,6 @@ Array.prototype.findValue = function (predicate) {
 
 	// The board MODEL in the MVC
 	var boardGameModel = {
-		// player1Type    : "",
-		// player2Type    : "",
 		currentCounter  : Counter.X, 
 		gameMode 	   : "",
 		board : [ 0, 1, 2, 3, 4, 5, 6, 7, 8],
